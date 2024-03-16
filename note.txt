@@ -1,0 +1,239 @@
+CREATE THE BOARD
+Example of a 3x3 board:
+
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+
+
+Each ceil contains a letter and surrounding edges.
+But actually, each ceil looks like this:
+
+         |
+    A    |
+         |
+----------
+
+
+When we put these ceils together we get:
+
+         |         |         |
+    A    |    A    |    A    |
+         |         |         |
+------------------------------
+         |         |         |
+    A    |    A    |    A    |
+         |         |         |
+------------------------------
+         |         |         |
+    A    |    A    |    A    |
+         |         |         |
+------------------------------
+
+which pretty much similar to the correct board.
+It just misses the top and left edges, we can create that separately.
+
+
+But we won't create each ceil at a time and put it together,
+we will create each line of the board, which is similar to create a whole row of ceil at the same time.
+
+
+Look at the board again:
+
+-------------------------------		// line 0	// first line, not include in any row
+|         |         |         |		// line 1
+|    A    |    A    |    A    |		// line 2	// row 0 of the board
+|         |         |         |		// line 3
+-------------------------------		// line 4
+|         |         |         |		// line 5
+|    A    |    A    |    A    |		// line 6	// row 1
+|         |         |         |		// line 7
+-------------------------------		// line 8
+|         |         |         |		// line 4i + 1
+|    A    |    A    |    A    |		// line 4i + 2	// row i
+|         |         |         |		// line 4i + 3
+-------------------------------		// line 4i + 4
+
+
+We have the row separator: 
+
+-------------------------------
+
+which we will put at line 0 at the top edge of the board.
+Also in line 4, 8, ..., 4i + 4 we also have to put it in too.
+
+
+At line 1, 3, ..., 4i + 1, 4i + 3 we have similar line:
+
+|         |         |         |
+
+which will be created first with one '|' followed with j "         |" (j is the width of the board, in this case j = 3).
+
+
+The rest (line 2, 6, ..., 4i + 2), which include the characters,
+we will use the above line end substitute the letters in.
+
+
+We will create a dynamic array of string to store the board.
+
+
+
+----------------------------------------------------------------------------------------------------------
+
+DELETE A CELL
+
+Recall the 3x3 board:
+
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+
+
+Assuming delete the (1, 1) (the middle) cell:
+If the surrounding cells are exist and not empty, simply replace the character with ' ':
+
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+|         |         |         |
+|    A    |         |    A    |
+|         |         |         |
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+
+If the cell on the left is deleted or not exist, apart from replace character, we also replace the left column separator:
+
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+                    |         |
+                    |    A    |
+                    |         |
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+
+Same thing with the cell on the right:
+
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+|         |                    
+|    A    |                    
+|         |                    
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+
+If the cell above is empty or not existed, we remove the top row separator:
+
+-----------         -----------
+|         |         |         |
+|    A    |         |    A    |
+|         |         |         |
+-----------         -----------
+|         |         |         |
+|    A    |         |    A    |
+|         |         |         |
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+
+Same with the cell below:
+
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+|         |         |         |
+|    A    |         |    A    |
+|         |         |         |
+-----------         -----------
+|         |         |         |
+|    A    |         |    A    |
+|         |         |         |
+-----------         -----------
+
+This is when the top right cell have been remove, if using the same method as above.
+
+---------------------         -
+|         |         |          
+|    A    |    A    |          
+|         |         |          
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+
+As we see, the corner, which is a part of the row separator, is not deleted.
+Same thing with the middle cell when the top, right and top right cells had been removed before.
+
+-----------         -         -
+|         |                    
+|    A    |                    
+|         |                    
+-----------         -         -
+|         |                    
+|    A    |                    
+|         |                    
+-------------------------------
+|         |         |         |
+|    A    |    A    |    A    |
+|         |         |         |
+-------------------------------
+
+So we also have to check when the cell above, on the right side and on the top right side if they are empty or not existed,
+delete the corner character. Same thing with the other 3 corners.
+
+
+---------------------------------------------------------------------------------------------------------
+
+FORMAT COMMAND PROMPT
+https://www.geeksforgeeks.org/colorizing-text-and-console-background-in-c/
+normal P = 15
+highlighted P = 240
+
+GET KEY PRESS
+https://stackoverflow.com/questions/24708700/c-detect-when-user-presses-arrow-key
+
