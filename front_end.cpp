@@ -11,6 +11,89 @@ struct Coordinate {
 	int x, y;
 };
 
+bool isLegitPos(int height, int width, Coordinate pos) {
+	if (pos.x <= 0 || pos.y <= 0 || pos.x >= width - 1 || pos.y >= height - 1) return 0;
+	return 1;
+}
+
+
+void createGameBoard(char** &game_board, int height, int width) {
+	srand(time(0) + rand());
+	game_board = new char*[height];
+	for (int i = 0; i < height; i++) {
+		game_board[i] = new char[width];
+		for (int j = 0; j < width; j++) {
+			if (i * j == 0 || i == height - 1 || j == width - 1) game_board[i][j] = 0;
+			else game_board[i][j] = 65 + rand() % 5;
+		}
+	}
+}
+
+void printGameBoard(char** game_board, int height, int width) {
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			cout << game_board[i][j] << ' ';
+		}
+		cout << endl;
+	}
+}
+
+void deleteGameBoard(char** &game_board, int height, int width) {
+	for (int i = 0; i < height; i++) {
+		delete[] game_board[i];
+	}
+	delete[] game_board;
+}
+
+int getInput() {
+	int c = getch();
+	if (c == 27) return -1; 	// ESC
+	if (c == 13) return 0; 		// ENTER
+	if (c == 'W' or c == 'w') return 1;
+	if (c == 'A' or c == 'a') return 2;
+	if (c == 'S' or c == 's') return 3;
+	if (c == 'D' or c == 'd') return 4;
+	else return -2;
+}
+
+void moveCursor(Coordinate &cur, int inp, int height, int width) {
+	Coordinate prev = cur;
+	switch (inp) {
+		case 1:
+			cur.y -= 1;
+			break;
+
+		case 2:
+			cur.x -= 1;
+			break;
+		
+		case 3:
+			cur.y += 1;
+			break;
+		
+		case 4:
+			cur.x += 1;
+			break;
+		
+		default:
+			break;
+	}
+	if (!isLegitPos(height, width, cur)) cur = prev;
+}
+
+void highlightPos(string* display_board, int height, int width, Coordinate pos) {
+	if (!isLegitPos(height, width, pos)) return;
+	display_board[4 * pos.y + 1][10 * pos.x + 1] = '#';
+	display_board[4 * pos.y + 2][10 * pos.x + 1] = '#';
+	display_board[4 * pos.y + 3][10 * pos.x + 1] = '#';
+}
+
+void dehighlightPos(string* display_board, int height, int width, Coordinate pos) {
+	if (!isLegitPos(height, width, pos)) return;
+	display_board[4 * pos.y + 1][10 * pos.x + 1] = ' ';
+	display_board[4 * pos.y + 2][10 * pos.x + 1] = ' ';
+	display_board[4 * pos.y + 3][10 * pos.x + 1] = ' ';
+}
 
 string* createDisplayBoard(char** game_board, int height, int width) {
 	string *display_board = new string[height * 4 + 1] {};
@@ -55,7 +138,8 @@ string* createDisplayBoard(char** game_board, int height, int width) {
 }
 
 bool deleteBoardAtPos(char** game_board, string* display_board, int height, int width, Coordinate pos) {
-	if (pos.x <= 0 || pos.y <= 0 || pos.x >= width - 1 || pos.y >= height - 1) return 0;
+	if (!isLegitPos(height, width, pos)) return 0;
+
 
 	game_board[pos.y][pos.x] = 0;
 	display_board[4*pos.y + 2].replace(10 * pos.x + 5, 1, 1, ' ');	// remove character
@@ -125,83 +209,6 @@ void printDisplayBoard(string* display_board, int height) {
 	}
 }
 
-void createGameBoard(char** &game_board, int height, int width) {
-	srand(time(0) + rand());
-	game_board = new char*[height];
-	for (int i = 0; i < height; i++) {
-		game_board[i] = new char[width];
-		for (int j = 0; j < width; j++) {
-			if (i * j == 0 || i == height - 1 || j == width - 1) game_board[i][j] = 0;
-			else game_board[i][j] = 65 + rand() % 5;
-		}
-	}
-}
-
-void printGameBoard(char** game_board, int height, int width) {
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			cout << game_board[i][j] << ' ';
-		}
-		cout << endl;
-	}
-}
-
-void deleteGameBoard(char** &game_board, int height, int width) {
-	for (int i = 0; i < height; i++) {
-		delete[] game_board[i];
-	}
-	delete[] game_board;
-}
-
-int getInput() {
-	int c = getch();
-	if (c == 27) return -1; // ESC
-	if (c == 13) return 0; // ENTER
-	if (c == 'W' or c == 'w') return 1;
-	if (c == 'A' or c == 'a') return 2;
-	if (c == 'S' or c == 's') return 3;
-	if (c == 'D' or c == 'd') return 4;
-	else return -2;
-}
-
-void moveCursor(Coordinate &cur, int inp) {
-	switch (inp) {
-		case 1:
-			cur.y -= 1;
-			break;
-
-		case 2:
-			cur.x -= 1;
-			break;
-		
-		case 3:
-			cur.y += 1;
-			break;
-		
-		case 4:
-			cur.x += 1;
-			break;
-		
-		default:
-			break;
-	}
-}
-
-void highlightPos(string* display_board, int height, int width, Coordinate pos) {
-	if (1 <= pos.x && pos.x <= width && 1 <= pos.y && pos.y <= height) {
-		display_board[4 * pos.y + 1][10 * pos.x + 1] = '#';
-		display_board[4 * pos.y + 2][10 * pos.x + 1] = '#';
-		display_board[4 * pos.y + 3][10 * pos.x + 1] = '#';
-	}
-}
-
-void dehighlightPos(string* display_board, int height, int width, Coordinate pos) {
-	if (1 <= pos.x && pos.x <= width && 1 <= pos.y && pos.y <= height) {
-		display_board[4 * pos.y + 1][10 * pos.x + 1] = ' ';
-		display_board[4 * pos.y + 2][10 * pos.x + 1] = ' ';
-		display_board[4 * pos.y + 3][10 * pos.x + 1] = ' ';
-	}
-}
 
 int main() {
 	int height = 7, width = 15;
@@ -227,12 +234,13 @@ int main() {
 		inp = getInput();
 		if (inp > 0) {
 			dehighlightPos(display_board, height, width, cur);
-			moveCursor(cur, inp);
+			moveCursor(cur, inp, height, width);
 			highlightPos(display_board, height, width, cur);
 			printDisplayBoard(display_board, height);
 		}
 		else if (inp == 0) {
-			
+			deleteBoardAtPos(game_board, display_board, height, width, cur);
+			printDisplayBoard(display_board, height);
 		}
 	}
 
