@@ -10,6 +10,5 @@ int main() {
 	
 	deleteGameBoard(game_board, height, width);
 	delete[] display_board;
-
 	return 0;
 }

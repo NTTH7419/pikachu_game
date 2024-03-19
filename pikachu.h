@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Windows.h>
+#include <windows.h>
 #include <conio.h>
 #include <stdlib.h>
 #include <string>
@@ -11,6 +11,19 @@ using namespace std;
 
 enum Direction{
     UP = 0, RIGHT = 1, LEFT = 2, DOWN = 3, NEUTRAL = 4
+};
+
+struct Vector {
+    int x;
+    int y;
+
+    bool operator==(const Vector &a) const{
+        return (x == a.x && y == a.y);
+    }
+
+    bool operator!=(const Vector &a) const{
+        return !(x == a.x && y == a.y);
+    }
 };
 
 struct Coordinate{
@@ -39,6 +52,14 @@ struct Coordinate{
 
         return result;
     }
+
+    Vector operator-(const Coordinate &a) const{
+        Vector result;
+        result.x = x - a.x;
+        result.y = y - a.y;
+
+        return result;
+    }
 };
 
 //* Stack implementation
@@ -52,14 +73,15 @@ struct Stack{
 };
 
 bool isStackEmpty(Stack stack);
-void pop(Stack &stack);
+bool pop(Stack &stack, Coordinate &data);
 void push(Stack &stack, Coordinate data);
 
+//* back end
 bool findPath(char** display_board, int height, int width, Stack &stack, Coordinate start, Coordinate end);
 bool findPathCall(int height, int width, bool** visited, Stack &stack, Direction cur_dir, short turn, Coordinate start, Coordinate end);
 void printPath(Stack stack);
 
-
+//* front end
 bool isInGameBoard(int height, int width, Coordinate pos);
 char** createGameBoard(int height, int width);
 void printGameBoard(char** game_board, int height, int width);
@@ -69,6 +91,8 @@ void moveCursor(Coordinate &cur, int inp, int height, int width);
 void highlightPos(string* display_board, int height, int width, Coordinate pos);
 void dehighlightPos(string* display_board, int height, int width, Coordinate pos);
 string* createDisplayBoard(char** game_board, int height, int width);
-bool deleteBoardAtPos(char** game_board, string* display_board, int height, int width, Coordinate pos);
+bool deleteDisplayBoardAtPos(char** game_board, string* display_board, int height, int width, Coordinate pos);
 void printDisplayBoard(string* display_board, int height);
+void copyDisplayBoard(string* display_board, string* display_board_path, int height);
+void drawPath(string* display_board_path, int height, int width, Stack &s);
 void gameLoop(char** game_board, string* display_board, int height, int width);

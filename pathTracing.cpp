@@ -1,11 +1,14 @@
 #include "pikachu.h"
 
-void pop(Stack &stack){
+bool pop(Stack &stack, Coordinate &data){
     if (stack.pHead){
+        data = stack.pHead -> data;
         Node* pCur = stack.pHead->pNext;
         delete stack.pHead;
         stack.pHead = pCur;
+        return 1;
     }
+    return 0;
 }
 
 void push(Stack &stack, Coordinate data){
@@ -99,7 +102,8 @@ bool findPathCall(int height, int width, bool** visited, Stack &stack, Direction
         }
     }
 
-    pop(stack);
+    Coordinate tmp; //* Nho sua
+    pop(stack, tmp);
     visited[start.y][start.x] = false;
 
     return 0;
