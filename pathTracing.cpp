@@ -138,58 +138,58 @@ void printPath(Stack stack){
     }
 }
 
-Coordinate getInput(){
-    Coordinate input;
-    cin >> input.x >> input.y;
+// Coordinate getInput(){
+//     Coordinate input;
+//     cin >> input.x >> input.y;
 
-    return input;
-}
+//     return input;
+// }
 
-int main(){
-    int row = 30;
-    int col = 30;
-    char** display_board = createDisplayBoard(row, col);
-    printDisplayBoard(display_board, row ,col);
-
-
-    // Coordinate first = {1, 1};
-    // Coordinate second = {49, 48};
-    Stack stack;
-    stack.pHead = NULL;
-
-    // display_board[2][1] = '\0';
-    // display_board[2][2] = '\0';
-    // display_board[2][3] = '\0';
-    // display_board[2][4] = '\0';
-    // display_board[3][4] = '\0';
-
-    // findPath(display_board, row, col, stack, first, second);
-    // printPath(stack);
-    //cout << isStackEmpty(stack);
-
-    while(true){
-        Coordinate start = getInput();
-        if (start.x == 69) break;
-        Coordinate end = getInput();
-
-        if (display_board[start.y][start.x] == display_board[end.y][end.x]
-            && display_board[start.y][start.x] != '\0'
-            && !(start == end)
-        ){
-            if (findPath(display_board, row, col, stack, start, end)){
-                removePiece(display_board, start, end);
-            }
-        }
-        printDisplayBoard(display_board, row, col);
-        cout << endl;
-        printPath(stack);
-    }
-
-    for (int i = 0; i < 5 + 2; i++){
-        delete [] display_board[i];
-    }
-    delete [] display_board;
+// int main(){
+//     int row = 30;
+//     int col = 30;
+//     char** display_board = createDisplayBoard(row, col);
+//     printDisplayBoard(display_board, row ,col);
 
 
-    return 0;
-}
+//     // Coordinate first = {1, 1};
+//     // Coordinate second = {49, 48};
+//     Stack stack;
+//     stack.pHead = NULL;
+
+//     // display_board[2][1] = '\0';
+//     // display_board[2][2] = '\0';
+//     // display_board[2][3] = '\0';
+//     // display_board[2][4] = '\0';
+//     // display_board[3][4] = '\0';
+
+//     // findPath(display_board, row, col, stack, first, second);
+//     // printPath(stack);
+//     //cout << isStackEmpty(stack);
+
+//     while(true){
+//         Coordinate start = getInput();
+//         if (start.x == 69) break;
+//         Coordinate end = getInput();
+
+//         if (display_board[start.y][start.x] == display_board[end.y][end.x]
+//             && display_board[start.y][start.x] != '\0'
+//             && !(start == end)
+//         ){
+//             if (findPath(display_board, row, col, stack, start, end)){
+//                 removePiece(display_board, start, end);
+//             }
+//         }
+//         printDisplayBoard(display_board, row, col);
+//         cout << endl;
+//         printPath(stack);
+//     }
+
+//     for (int i = 0; i < 5 + 2; i++){
+//         delete [] display_board[i];
+//     }
+//     delete [] display_board;
+
+
+//     return 0;
+// }

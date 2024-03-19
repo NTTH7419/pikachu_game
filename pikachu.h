@@ -57,5 +57,18 @@ void push(Stack &stack, Coordinate data);
 
 bool findPath(char** display_board, int height, int width, Stack &stack, Coordinate start, Coordinate end);
 bool findPathCall(int height, int width, bool** visited, Stack &stack, Direction cur_dir, short turn, Coordinate start, Coordinate end);
-
 void printPath(Stack stack);
+
+
+bool isInGameBoard(int height, int width, Coordinate pos);
+char** createGameBoard(int height, int width);
+void printGameBoard(char** game_board, int height, int width);
+void deleteGameBoard(char** &game_board, int height, int width);
+int getInput();
+void moveCursor(Coordinate &cur, int inp, int height, int width);
+void highlightPos(string* display_board, int height, int width, Coordinate pos);
+void dehighlightPos(string* display_board, int height, int width, Coordinate pos);
+string* createDisplayBoard(char** game_board, int height, int width);
+bool deleteBoardAtPos(char** game_board, string* display_board, int height, int width, Coordinate pos);
+void printDisplayBoard(string* display_board, int height);
+void gameLoop(char** game_board, string* display_board, int height, int width);

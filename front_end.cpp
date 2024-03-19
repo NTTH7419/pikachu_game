@@ -1,37 +1,27 @@
-#include <iostream>
-#include <string>
-#include <stdlib.h>
-#include <time.h>
-#include <conio.h>
-#include <windows.h> 
+#include "pikachu.h"
 
-using namespace std;
-
-struct Coordinate {
-	int x, y;
-};
-
-bool isLegitPos(int height, int width, Coordinate pos) {
-	if (pos.x <= 0 || pos.y <= 0 || pos.x >= width - 1 || pos.y >= height - 1) return 0;
+bool isInGameBoard(int height, int width, Coordinate pos) {
+	if (pos.x <= 0 || pos.y <= 0 || pos.y >= height + 1 || pos.x >= width + 1) return 0;
 	return 1;
 }
 
 
-void createGameBoard(char** &game_board, int height, int width) {
+char** createGameBoard(int height, int width) {
 	srand(time(0) + rand());
-	game_board = new char*[height];
-	for (int i = 0; i < height; i++) {
-		game_board[i] = new char[width];
-		for (int j = 0; j < width; j++) {
-			if (i * j == 0 || i == height - 1 || j == width - 1) game_board[i][j] = 0;
+	char** game_board = new char*[height + 2];
+	for (int i = 0; i < height + 2; i++) {
+		game_board[i] = new char[width + 2];
+		for (int j = 0; j < width + 2; j++) {
+			if (i * j == 0 || i == height + 1 || j == width + 1) game_board[i][j] = 0;
 			else game_board[i][j] = 65 + rand() % 5;
 		}
 	}
+	return game_board;
 }
 
 void printGameBoard(char** game_board, int height, int width) {
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
+	for (int i = 0; i < height + 2; i++) {
+		for (int j = 0; j < width + 2; j++) {
 			cout << game_board[i][j] << ' ';
 		}
 		cout << endl;
@@ -39,7 +29,7 @@ void printGameBoard(char** game_board, int height, int width) {
 }
 
 void deleteGameBoard(char** &game_board, int height, int width) {
-	for (int i = 0; i < height; i++) {
+	for (int i = 0; i < height + 2; i++) {
 		delete[] game_board[i];
 	}
 	delete[] game_board;
@@ -49,11 +39,11 @@ int getInput() {
 	int c = getch();
 	if (c == 27) return -1; 	// ESC
 	if (c == 13) return 0; 		// ENTER
-	if (c == 'W' or c == 'w') return 1;
-	if (c == 'A' or c == 'a') return 2;
-	if (c == 'S' or c == 's') return 3;
-	if (c == 'D' or c == 'd') return 4;
-	else return -2;
+	if (c == 'W' || c == 'w') return 1;
+	if (c == 'A' || c == 'a') return 2;
+	if (c == 'S' || c == 's') return 3;
+	if (c == 'D' || c == 'd') return 4;
+	return -2;
 }
 
 void moveCursor(Coordinate &cur, int inp, int height, int width) {
@@ -78,54 +68,54 @@ void moveCursor(Coordinate &cur, int inp, int height, int width) {
 		default:
 			break;
 	}
-	if (!isLegitPos(height, width, cur)) cur = prev;
+	if (!isInGameBoard(height, width, cur)) cur = prev;
 }
 
 void highlightPos(string* display_board, int height, int width, Coordinate pos) {
-	if (!isLegitPos(height, width, pos)) return;
+	if (!isInGameBoard(height, width, pos)) return;
 	display_board[4 * pos.y + 1][10 * pos.x + 1] = '#';
 	display_board[4 * pos.y + 2][10 * pos.x + 1] = '#';
 	display_board[4 * pos.y + 3][10 * pos.x + 1] = '#';
 }
 
 void dehighlightPos(string* display_board, int height, int width, Coordinate pos) {
-	if (!isLegitPos(height, width, pos)) return;
+	if (!isInGameBoard(height, width, pos)) return;
 	display_board[4 * pos.y + 1][10 * pos.x + 1] = ' ';
 	display_board[4 * pos.y + 2][10 * pos.x + 1] = ' ';
 	display_board[4 * pos.y + 3][10 * pos.x + 1] = ' ';
 }
 
 string* createDisplayBoard(char** game_board, int height, int width) {
-	string *display_board = new string[height * 4 + 1] {};
+	string *display_board = new string[(height + 2) * 4 + 1] {};
 	int line = 0;
 
 	// top outline
-	string blank_line = string(width * 10 + 1, ' ');
+	string blank_line = string((width + 2) * 10 + 1, ' ');
 	for (int i = 0; i < 4; i++) {
 		display_board[line++] = blank_line;
 	}
 
-	string row_sep = string(10, ' ') + string((width - 2) * 10 + 1, '-') + string(10, ' ');	// row separator
+	string row_sep = string(10, ' ') + string(width * 10 + 1, '-') + string(10, ' ');	// row separator
 	display_board[line++] = row_sep;	// line 0
 
-	// create similar line
-	string similar_line;
-	similar_line = string(10, ' ') + '|';
-	for (int i = 1; i < width - 1; i++) {
-		similar_line += string(9, ' ') + '|';
+	// create spliter line
+	string spliter_line;
+	spliter_line = string(10, ' ') + '|';
+	for (int i = 1; i < width + 1; i++) {
+		spliter_line += string(9, ' ') + '|';
 	}
-	similar_line += string(10, ' ');
+	spliter_line += string(10, ' ');
 
-	for (int i = 1; i < height - 1; i++) {
-		display_board[line++] = similar_line;	// line 4i + 1
+	for (int i = 1; i < height + 1; i++) {
+		display_board[line++] = spliter_line;	// line 4i + 1
 
-		display_board[line] = similar_line;		// line 4i + 2
-		for (int j = 1; j < width - 1; j++) {
+		display_board[line] = spliter_line;		// line 4i + 2
+		for (int j = 1; j < width + 1; j++) {
 			display_board[line].replace(10 * j + 5, 1, 1, game_board[i][j]);	// substitute the character in
 		}
 		line++;
 
-		display_board[line++] = similar_line;	// line 4i + 3
+		display_board[line++] = spliter_line;	// line 4i + 3
 		display_board[line++] = row_sep;		// line 4i + 4
 	}
 
@@ -138,7 +128,7 @@ string* createDisplayBoard(char** game_board, int height, int width) {
 }
 
 bool deleteBoardAtPos(char** game_board, string* display_board, int height, int width, Coordinate pos) {
-	if (!isLegitPos(height, width, pos)) return 0;
+	if (!isInGameBoard(height, width, pos)) return 0;
 
 
 	game_board[pos.y][pos.x] = 0;
@@ -184,7 +174,7 @@ void printDisplayBoard(string* display_board, int height) {
 
 	string line;
 	int idx = 0;
-	for(int i = 0; i < 4 * height; i++) {
+	for(int i = 0; i < 4 * (height + 2); i++) {
 		line = display_board[i];
 		if (i % 4 == 0) cout << line;
 		else {
@@ -209,43 +199,62 @@ void printDisplayBoard(string* display_board, int height) {
 	}
 }
 
-
-int main() {
-	int height = 7, width = 15;
-	char** game_board;
-	createGameBoard(game_board, height, width);
-	// printGameBoard(game_board, height, width);
-	string* display_board = createDisplayBoard(game_board, height, width);
+void gameLoop(char** game_board, string* display_board, int height, int width) {
+	int n = height * width;
+	Coordinate cur1, cur2;
+	int inp;
+	Stack stack;
+	stack.pHead = NULL;
+	cur1 = {1, 1};
+	highlightPos(display_board, height, width, cur1);
 	printDisplayBoard(display_board, height);
+	while (n > 0) {
+		do {
+			inp = getInput();
+		} while (inp == -2);
 
-	// Coordinate cur
-	// for (int i = 0; i < (height - 2) * (width - 2); i++) {
-	// 	cin >> cur.x >> cur.y;
-	// 	if (x == -1 || y == -1) break;
-	// 	deleteBoardAtPos(game_board, display_board, height, width, cur);
-	// 	printDisplayBoard(display_board, height);
-	// }
+		while (inp > 0) {
+			dehighlightPos(display_board, height, width, cur1);
+			moveCursor(cur1, inp, height, width);
+			highlightPos(display_board, height, width, cur1);
+			printDisplayBoard(display_board, height);
+			do {
+				inp = getInput();
+			} while (inp == -2);
+		}
 
-	Coordinate cur = {1, 1};
-	highlightPos(display_board, height, width, cur);
-	printDisplayBoard(display_board, height);
-	int inp = 0;
-	while (inp != -1) {
-		inp = getInput();
-		if (inp > 0) {
-			dehighlightPos(display_board, height, width, cur);
-			moveCursor(cur, inp, height, width);
-			highlightPos(display_board, height, width, cur);
+		if (inp == -1) break;
+
+		cur2 = cur1;
+
+		do {
+			inp = getInput();
+		} while (inp == -2);
+
+		while (inp > 0) {
+			if (cur2 != cur1) dehighlightPos(display_board, height, width, cur2);
+			moveCursor(cur2, inp, height, width);
+			highlightPos(display_board, height, width, cur2);
+			printDisplayBoard(display_board, height);
+			do {
+				inp = getInput();
+			} while (inp == -2);
+		}
+
+		if (inp == -1) break;
+
+		if (game_board[cur1.y][cur1.x] == game_board[cur2.y][cur2.x] && cur1 != cur2 && findPath(game_board, height, width, stack, cur1, cur2)) {
+			deleteBoardAtPos(game_board, display_board, height, width, cur1);
+			dehighlightPos(display_board, height, width, cur1);
+			deleteBoardAtPos(game_board, display_board, height, width, cur2);
+			n -= 2;
+			cur1 = cur2;
 			printDisplayBoard(display_board, height);
 		}
-		else if (inp == 0) {
-			deleteBoardAtPos(game_board, display_board, height, width, cur);
+		else {
+			if (cur2 != cur1) dehighlightPos(display_board, height, width, cur1);
+			cur1 = cur2;
 			printDisplayBoard(display_board, height);
 		}
 	}
-
-	deleteGameBoard(game_board, height, width);
-	delete[] display_board;
-
-	return 0;
 }
