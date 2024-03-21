@@ -69,15 +69,28 @@ struct Node{
 };
 
 struct Stack{
-    Node* pHead;
+    Node* pHead = NULL;
 };
 
 bool isStackEmpty(Stack stack);
 bool pop(Stack &stack, Coordinate &data);
 void push(Stack &stack, Coordinate data);
 
+//* Queue Implementation
+
+struct Queue{
+    Node* pHead = NULL;
+    Node* pTail = NULL;
+};
+
+void push(Queue &queue, Coordinate data);
+void pop(Queue &queue);
+bool isQueueEmpty(Queue queue);
+void printQueue(Queue queue);
+Coordinate front(Queue queue);
+
 //* back end
-bool findPath(char** display_board, int height, int width, Stack &stack, Coordinate start, Coordinate end);
+bool findPath(char** display_board, int height, int width, Queue &path, Coordinate start, Coordinate end);
 bool findPathCall(int height, int width, bool** visited, Stack &stack, Direction cur_dir, short turn, Coordinate start, Coordinate end);
 void printPath(Stack stack);
 
@@ -94,5 +107,5 @@ string* createDisplayBoard(char** game_board, int height, int width);
 bool deleteDisplayBoardAtPos(char** game_board, string* display_board, int height, int width, Coordinate pos);
 void printDisplayBoard(string* display_board, int height);
 void copyDisplayBoard(string* display_board, string* display_board_path, int height);
-void drawPath(string* display_board_path, int height, int width, Stack &s);
+void drawPath(string* display_board_path, int height, int width, Queue &q);
 void gameLoop(char** game_board, string* display_board, int height, int width);

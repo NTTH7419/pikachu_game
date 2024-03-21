@@ -1,14 +1,11 @@
 #include "pikachu.h"
 
-bool pop(Stack &stack, Coordinate &data){
+void pop(Stack &stack){
     if (stack.pHead){
-        data = stack.pHead -> data;
         Node* pCur = stack.pHead->pNext;
         delete stack.pHead;
         stack.pHead = pCur;
-        return 1;
     }
-    return 0;
 }
 
 void push(Stack &stack, Coordinate data){
@@ -21,6 +18,54 @@ void push(Stack &stack, Coordinate data){
 bool isStackEmpty(Stack stack){
     return !stack.pHead;
 }
+
+bool isQueueEmpty(Queue queue){
+    return !queue.pHead;
+}
+
+void push(Queue &queue, Coordinate data){
+    Node* pCur = new Node;
+
+    pCur->data = data;
+    pCur->pNext = NULL;
+
+    if (queue.pTail){
+        queue.pTail->pNext = pCur;
+        queue.pTail = pCur;
+    }
+    else{
+        queue.pHead = pCur;
+        queue.pTail = pCur;
+    }
+}
+
+void pop(Queue &queue){
+    if(queue.pHead){
+        Node* pCur = queue.pHead;
+        if (queue.pHead == queue.pTail)
+            queue.pTail = queue.pHead->pNext;
+
+        queue.pHead = queue.pHead->pNext;
+        delete pCur;
+    }
+    else
+        queue.pTail = queue.pHead;
+}
+
+Coordinate front(Queue queue){
+    if (!isQueueEmpty(queue))
+        return queue.pHead->data;
+
+    return {-1, -1};
+}
+
+void printQueue(Queue queue){
+    while(queue.pHead){
+        cout << queue.pHead->data.x << " " << queue.pHead->data.y << endl;
+        queue.pHead = queue.pHead->pNext;
+    }
+}
+
 
 char** createDisplayBoard(int height = 5, int width = 5){
     srand(time(NULL));
@@ -102,14 +147,132 @@ bool findPathCall(int height, int width, bool** visited, Stack &stack, Direction
         }
     }
 
-    Coordinate tmp; //* Nho sua
-    pop(stack, tmp);
+    pop(stack);
     visited[start.y][start.x] = false;
+
+
 
     return 0;
 }
 
-bool findPath(char** game_board, int height, int width, Stack &stack, Coordinate start, Coordinate end){
+bool bfs(int height, int width, bool** visited, Queue &path, Coordinate start, Coordinate end){
+    Queue q;
+    push(q, start);
+
+    //* setting up all the variables
+    Coordinate direction[] = {
+        {0, -1},     //up
+        {1, 0},     //right
+        {-1, 0},    //left
+        {0, 1}     //down
+    };
+
+    struct CellInfo{
+        Direction cur_dir;
+        short turn_cnt;
+    };
+
+    Coordinate** prev_point = new Coordinate*[height + 2];
+    CellInfo** point_info = new CellInfo*[height + 2];
+
+    for (int i = 0; i < height + 2; i++){
+        prev_point[i] = new Coordinate[width + 2];
+        point_info[i] = new CellInfo[width + 2];
+    }
+
+    prev_point[start.y][start.x] = {-1, -1};
+    point_info[start.y][start.x] = {NEUTRAL, 0};
+    visited[start.y][start.x] = true;
+    visited[end.y][end.x] = false;
+
+    Coordinate cur_point;
+
+    while(!isQueueEmpty(q)){
+        cur_point = front(q);
+        cout << cur_point.x << " " << cur_point.y << " " << point_info[cur_point.y][cur_point.x].cur_dir << " " << point_info[cur_point.y][cur_point.x].turn_cnt << endl; 
+
+        pop(q);
+
+        if (cur_point == end){
+            //& backtracking
+            cur_point = end;
+            
+            while(cur_point != prev_point[start.y][start.x]){
+                //cout << "looping" << endl;
+                push(path, cur_point);
+                cur_point = prev_point[cur_point.y][cur_point.x];
+            }
+            return 1;
+        }
+        
+        //& pathfinding      
+        for (int i = 0; i < 4; i++){
+            Coordinate next_point = cur_point + direction[i];
+            bool isDead = 1;
+            //Check if the next point is a valid point to move to
+            if (                
+                0 <= next_point.y && next_point.y < height + 2 &&
+                0 <= next_point.x && next_point.x < width + 2 &&
+                !visited[next_point.y][next_point.x]
+            ){
+                isDead = 0;
+                Direction next_dir = (Direction)i;
+                point_info[next_point.y][next_point.x].turn_cnt = point_info[cur_point.y][cur_point.x].turn_cnt;
+
+                if (point_info[cur_point.y][cur_point.x].cur_dir != NEUTRAL && point_info[cur_point.y][cur_point.x].cur_dir != next_dir){
+                    if (point_info[cur_point.y][cur_point.x].turn_cnt == 2){
+                        isDead = true;
+                        continue;
+                    } 
+                    else
+                        point_info[next_point.y][next_point.x].turn_cnt = point_info[cur_point.y][cur_point.x].turn_cnt + 1;
+
+                    // visited[next_point.y][next_point.x] = true;
+                }
+
+                if (!isDead){
+                    visited[next_point.y][next_point.x] = true;
+                    point_info[next_point.y][next_point.x].cur_dir = next_dir;
+                    prev_point[next_point.y][next_point.x] = cur_point;
+                    push(q, next_point);
+
+                }
+                else{
+                    Coordinate trace_back = cur_point;
+                    while(trace_back != start){
+                        visited[trace_back.x][trace_back.y] = false;
+                        trace_back = prev_point[trace_back.x][trace_back.y];
+                    }   
+                }
+            }
+
+
+            // if (0 <= next_point.y && next_point.y < height + 2 &&
+            //     0 <= next_point.x && next_point.x < width + 2 &&
+            //     visited[next_point.y][next_point.x]
+            // ){
+            //     if (point_info[next_point.y][next_point.x].turn_cnt < point_info[cur_point.y][cur_point.x].turn_cnt) {
+
+            //     }
+            // }  
+        }
+    }
+
+
+    for (int i = 0; i < height + 2; i++){
+        delete[] prev_point[i];
+        delete [] point_info[i];
+    }
+    
+    delete[] prev_point;
+    delete[] point_info;
+
+    return 0;
+}
+
+
+
+bool findPath(char** game_board, int height, int width, Queue &path, Coordinate start, Coordinate end){
     bool** visited = new bool*[height + 2];
     for (int i = 0; i < height + 2; i++)
         visited[i] = new bool[width + 2] {false};
@@ -119,19 +282,19 @@ bool findPath(char** game_board, int height, int width, Stack &stack, Coordinate
         }
     }
 
-    visited[end.y][end.x] = false;
-
-    // for (int i = 0; i < row + 2; i++){
-    //     for (int j = 0; j < col + 2; j++){
-    //         cout << visited[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-
-    if (findPathCall(height, width, visited, stack, NEUTRAL, 0, start, end)){
-        //cout << isStackEmpty(stack) << endl;
+    if (bfs(height, width, visited, path, start, end)){
+        cout << "FUCK YOU" << endl;
         return 1;
     }
+    else{
+        cout << "HUHU BUGGED" << endl;
+        return 0;
+    }
+
+    for (int i = 0; i < height + 2; i++)
+        delete[] visited[i];
+    
+    delete[] visited;
     return 0;
 }
 
@@ -142,7 +305,7 @@ void printPath(Stack stack){
     }
 }
 
-// Coordinate getInput(){
+// Coordinate GetInput(){
 //     Coordinate input;
 //     cin >> input.x >> input.y;
 
@@ -150,10 +313,19 @@ void printPath(Stack stack){
 // }
 
 // int main(){
-//     int row = 30;
-//     int col = 30;
-//     char** display_board = createDisplayBoard(row, col);
-//     printDisplayBoard(display_board, row ,col);
+//     int height = 5;
+//     int width = 5;
+//     char** game_board = createDisplayBoard(height, width);
+//     printDisplayBoard(game_board, height ,width);
+
+//     bool** visited = new bool*[height + 2];
+//     for (int i = 0; i < height + 2; i++)
+//         visited[i] = new bool[width + 2] {false};
+//     for (int i = 0; i < height + 2; i++){
+//         for (int j = 0; j < width + 2; j++){
+//             visited[i][j] = game_board[i][j] != '\0';
+//         }
+//     }
 
 
 //     // Coordinate first = {1, 1};
@@ -172,27 +344,43 @@ void printPath(Stack stack){
 //     //cout << isStackEmpty(stack);
 
 //     while(true){
-//         Coordinate start = getInput();
+//         Coordinate start = GetInput();
 //         if (start.x == 69) break;
-//         Coordinate end = getInput();
+//         Coordinate end = GetInput();
 
-//         if (display_board[start.y][start.x] == display_board[end.y][end.x]
-//             && display_board[start.y][start.x] != '\0'
+//         if (game_board[start.y][start.x] == game_board[end.y][end.x]
+//             && game_board[start.y][start.x] != '\0'
 //             && !(start == end)
 //         ){
-//             if (findPath(display_board, row, col, stack, start, end)){
-//                 removePiece(display_board, start, end);
+//             // if (findPath(game_board, height, width, stack, start, end)){
+//             //     removePiece(game_board, start, end);
+//             // }
+//             Queue path;
+//             path.pHead = NULL;
+//             path.pTail = NULL;
+//             for (int i = 0; i < height + 2; i++){
+//                 for (int j = 0; j < width + 2; j++){
+//                     visited[i][j] = '\0'; //game_board[i][j] != '\0';
+//                 }
+//             }
+
+
+//             if (bfs(height, width, visited, path, start, end)){
+//                 cout << "matched" << endl;
+//                 printQueue(path);
 //             }
 //         }
-//         printDisplayBoard(display_board, row, col);
-//         cout << endl;
-//         printPath(stack);
+//         printDisplayBoard(game_board, height, width);
+//         // cout << endl;
+//         // printPath(stack);
 //     }
 
 //     for (int i = 0; i < 5 + 2; i++){
-//         delete [] display_board[i];
+//         delete [] game_board[i];
+//         delete [] visited[i];
 //     }
-//     delete [] display_board;
+//     delete [] game_board;
+//     delete [] visited;
 
 
 //     return 0;

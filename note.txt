@@ -227,6 +227,35 @@ So we also have to check when the cell above, on the right side and on the top r
 delete the corner character. Same thing with the other 3 corners.
 
 
+
+ILUZ MATCHING ALGORITHM:
+
+In a standard pikachu matching game, for any two pieces on the board to be considered valid for matching, they must satisfy these conditions:
+
+- The two pieces must have not been deleted
+- Their representing image (or letter) must be identical
+- There exists a path to visually connect the two
+- The path itself consists of straight lines and must have the shape of one of these following letters: I L U Z
+
+
+
+
+
+
+
+consider the following game board illustrated by a 2D array in 0-based index:
+
+     0  1  2  3  4 
+0    A  A  A  A  A
+1    B  B  B  B  B
+2    C  C  C  C  C
+3    D  D  D  D  D 
+4    E  E  E  E  E
+
+
+
+
+
 ---------------------------------------------------------------------------------------------------------
 
 FORMAT COMMAND PROMPT
@@ -236,4 +265,7 @@ highlighted P = 240
 
 GET KEY PRESS
 https://stackoverflow.com/questions/24708700/c-detect-when-user-presses-arrow-key
+
+BREADTH FIRST SEARCH GRID SHORTEST PATH
+https://www.youtube.com/watch?v=KiCBXu4P-2Y
 

@@ -203,15 +203,16 @@ void copyDisplayBoard(string* display_board, string* display_board_path, int hei
 	}
 }
 
-void drawPath(string* display_board_path, int height, int width, Stack &s) {
+void drawPath(string* display_board_path, int height, int width, Queue &q) {
 	Coordinate prev, curr, next;
 	Vector prev_curr, curr_next;
 	bool isStart = true , isEnd = false;
 	prev = {-1, -1};
-	pop(s, curr);
-	pop(s, next);
+	curr = front(q); pop(q);
+	next = front(q); pop(q);
 
-	while (true) {
+
+	while(1) {
 		prev_curr = curr - prev;
 		curr_next = next - curr;
 		// cout << prev.x << ' ' << prev.y << "  -  " << curr.x << ' ' << curr.y  << "  -  " << next.x << ' ' << next.y << endl;
@@ -280,7 +281,11 @@ void drawPath(string* display_board_path, int height, int width, Stack &s) {
 		if (isEnd) break;
 		prev = curr;
 		curr = next;
-		isEnd = !pop(s, next);
+		isEnd = isQueueEmpty(q);
+		//cout << isEnd << endl;
+
+		next = front(q); pop(q);
+		// cout << q.pHead << endl;
 	}
 }
 
@@ -289,12 +294,11 @@ void gameLoop(char** game_board, string* display_board, int height, int width) {
 	Coordinate cur1, cur2;
 	int inp;
 	bool cur1_selected = false;
-	Stack stack;
 
 	string *display_board_path = new string[(height + 2) * 4 + 1] {};
 	copyDisplayBoard(display_board, display_board_path, height);
 
-	stack.pHead = NULL;
+	Queue path;
 	cur1 = cur2 = {1, 1};
 	highlightPos(display_board, height, width, cur1);
 	printDisplayBoard(display_board, height);
@@ -337,9 +341,11 @@ void gameLoop(char** game_board, string* display_board, int height, int width) {
 			else {
 				if (game_board[cur2.y][cur2.x] == 0) continue;
 				if (cur1 != cur2 && game_board[cur1.y][cur1.x] == game_board[cur2.y][cur2.x] 
-					&& findPath(game_board, height, width, stack, cur1, cur2)
+					&& findPath(game_board, height, width, path, cur1, cur2)
 				) {
-					drawPath(display_board_path, height, width, stack);
+					// cout << "HELLO WORLD";
+					printQueue(path);
+					drawPath(display_board_path, height, width, path);
 					printDisplayBoard(display_board_path, height);
 
 					deleteDisplayBoardAtPos(game_board, display_board, height, width, cur1);
@@ -350,7 +356,7 @@ void gameLoop(char** game_board, string* display_board, int height, int width) {
 					copyDisplayBoard(display_board, display_board_path, height);
 					highlightPos(display_board, height, width, cur2);
 
-					Sleep(1000);
+					Sleep(500);
 					n -= 2;
 					cur1 = cur2;
 					printDisplayBoard(display_board, height);
