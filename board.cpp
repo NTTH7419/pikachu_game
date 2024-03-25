@@ -107,11 +107,28 @@ bool board::isBoardEmpty(){
     return 1;
 }
 
-bool bfs(int height, int width, bool** visited, Queue &path, Coordinate start, Coordinate end){
-    Queue q;
-    push(q, start);
+bool board::isVisited(Coordinate point, vector<Coordinate> path){
+    while(!path.empty()){
+        if (point == path.back()) return true;
+        path.pop_back();
+    }
+    return false;
+}
 
-    //* setting up all the variables
+bool board::bfs(Coordinate start, Coordinate end, vector<Coordinate> &path){
+    struct CurPoint{
+        vector<Coordinate> path;
+        Direction cur_dir;
+        short turn_cnt;
+    };
+
+
+    //* bfs queue
+    queue<CurPoint> q;
+
+    //* store all valid paths from start to end
+    queue<vector<Coordinate>> paths;
+
     Coordinate direction[] = {
         {0, -1},     //up
         {1, 0},     //right
@@ -119,120 +136,81 @@ bool bfs(int height, int width, bool** visited, Queue &path, Coordinate start, C
         {0, 1}     //down
     };
 
-    struct CellInfo{
-        Direction cur_dir;
-        short turn_cnt;
-    };
+    q.push({{start}, NEUTRAL, 0});
 
-    Coordinate** prev_point = new Coordinate*[height + 2];
-    CellInfo** point_info = new CellInfo*[height + 2];
+    while(!q.empty()){
+        Coordinate cur_point = q.front().path.back();
+        vector<Coordinate> cur_path = q.front().path;
+        Direction cur_dir = q.front().cur_dir;
+        int cur_point_turn = q.front().turn_cnt;
+        q.pop();
 
-    for (int i = 0; i < height + 2; i++){
-        prev_point[i] = new Coordinate[width + 2];
-        point_info[i] = new CellInfo[width + 2];
-    }
-
-    prev_point[start.y][start.x] = {-1, -1};
-    point_info[start.y][start.x] = {NEUTRAL, 0};
-    visited[start.y][start.x] = true;
-    visited[end.y][end.x] = false;
-
-    Coordinate cur_point;
-
-    while(!isQueueEmpty(q)){
-        cur_point = front(q);
-        // cout << cur_point.x << " " << cur_point.y << " " << point_info[cur_point.y][cur_point.x].cur_dir << " " << point_info[cur_point.y][cur_point.x].turn_cnt << endl; 
-
-        pop(q);
+        // cout << cur_point.x << " " << cur_point.y << endl;
 
         if (cur_point == end){
-            //& backtracking
-            cur_point = end;
-            
-            while(cur_point != prev_point[start.y][start.x]){
-                //cout << "looping" << endl;
-                push(path, cur_point);
-                cur_point = prev_point[cur_point.y][cur_point.x];
-            }
+            paths.push(cur_path);
+            path = cur_path;
+            // while(!paths.empty()){
+            //     vector<Coordinate> path = paths.front(); paths.pop();
+            //     cout << "path length: " << path.size() << endl;
+            //     for (int i = 0; i < path.size(); i++){
+            //         cout << path[i].x << " " << path[i].y << endl;
+            //     }
+            // }
+
+            // cout << "hello world" << endl;
             return 1;
         }
-        
-        //& pathfinding      
+
         for (int i = 0; i < 4; i++){
             Coordinate next_point = cur_point + direction[i];
-            bool isDead = 1;
-            //Check if the next point is a valid point to move to
-            if (                
-                0 <= next_point.y && next_point.y < height + 2 &&
-                0 <= next_point.x && next_point.x < width + 2 &&
-                !visited[next_point.y][next_point.x]
+            vector<Coordinate> next_path = cur_path;
+            Direction next_dir = (Direction)i;   
+            short next_point_turn = cur_point_turn;
+
+            // cout << next_point.x << " " << next_point.y << endl;
+            if (
+                0 <= next_point.y && next_point.y < this->height + 2 &&
+                0 <= next_point.x && next_point.x < this->width + 2 &&
+                (this->letter_board[next_point.y][next_point.x] == '\0' || next_point == end) &&
+                !isVisited(next_point, cur_path)
             ){
-                isDead = 0;
-                Direction next_dir = (Direction)i;
-                point_info[next_point.y][next_point.x].turn_cnt = point_info[cur_point.y][cur_point.x].turn_cnt;
 
-                if (point_info[cur_point.y][cur_point.x].cur_dir != NEUTRAL && point_info[cur_point.y][cur_point.x].cur_dir != next_dir){
-                    if (point_info[cur_point.y][cur_point.x].turn_cnt == 2){
-                        isDead = true;
+                if (cur_dir != NEUTRAL && cur_dir != next_dir){
+
+                    if (cur_point_turn == 2)
                         continue;
-                    } 
                     else
-                        point_info[next_point.y][next_point.x].turn_cnt = point_info[cur_point.y][cur_point.x].turn_cnt + 1;
-
-                    // visited[next_point.y][next_point.x] = true;
+                        next_point_turn = cur_point_turn + 1;
                 }
 
-                if (!isDead){
-                    visited[next_point.y][next_point.x] = true;
-                    point_info[next_point.y][next_point.x].cur_dir = next_dir;
-                    prev_point[next_point.y][next_point.x] = cur_point;
-                    push(q, next_point);
-
-                }
-                else{
-                    Coordinate trace_back = cur_point;
-                    while(trace_back != start){
-                        visited[trace_back.x][trace_back.y] = false;
-                        trace_back = prev_point[trace_back.x][trace_back.y];
-                    }   
-                }
+                next_path.push_back(next_point);
+                q.push({next_path, next_dir, next_point_turn});
             }
-
-
-            // if (0 <= next_point.y && next_point.y < height + 2 &&
-            //     0 <= next_point.x && next_point.x < width + 2 &&
-            //     visited[next_point.y][next_point.x]
-            // ){
-            //     if (point_info[next_point.y][next_point.x].turn_cnt < point_info[cur_point.y][cur_point.x].turn_cnt) {
-
-            //     }
-            // }  
         }
+
     }
 
+    // cout << paths.size() << endl;
 
-    for (int i = 0; i < height + 2; i++){
-        delete[] prev_point[i];
-        delete [] point_info[i];
-    }
-    
-    delete[] prev_point;
-    delete[] point_info;
+
+    // while(!paths.empty()){
+    //     vector<Coordinate> path = paths.front(); paths.pop();
+    //     cout << "path length: " << path.size() << endl;
+    //     for (int i = 0; i < path.size(); i++){
+    //         cout << path[i].x << " " << path[i].y << endl;
+    //     }
+    // }
+
+
+    // if (paths.size() != 0) return 1;
 
     return 0;
 }
 
-bool board::findPath(Queue &path, Coordinate start, Coordinate end){
-    bool** visited = new bool*[height + 2];
-    for (int i = 0; i < height + 2; i++)
-        visited[i] = new bool[width + 2] {false};
-    for (int i = 0; i < height + 2; i++){
-        for (int j = 0; j < width + 2; j++){
-            visited[i][j] = letter_board[i][j] != '\0';
-        }
-    }
 
-    if (bfs(height, width, visited, path, start, end)){
+bool board::match(Coordinate first, Coordinate second, vector<Coordinate> &path){
+    if (bfs(first, second, path)){
         // cout << "FUCK YOU" << endl;
         return 1;
     }
@@ -240,11 +218,6 @@ bool board::findPath(Queue &path, Coordinate start, Coordinate end){
         // cout << "HUHU BUGGED" << endl;
         return 0;
     }
-
-    for (int i = 0; i < height + 2; i++)
-        delete[] visited[i];
-    
-    delete[] visited;
     return 0;
 }
 
@@ -379,14 +352,14 @@ void board::removeCell(Coordinate pos) {
 	}
 }
 
-void board::drawPath(Queue &q) {
+void board::drawPath(vector<Coordinate> path) {
 	Coordinate prev, curr, next;
 	Vector prev_curr, curr_next;
 	bool isStart = true , isEnd = false;
 	bool left, right, up, down;
 	prev = {-1, -1};
-	curr = front(q); pop(q);
-	next = front(q); pop(q);
+	curr = path.back(); path.pop_back();
+	next = path.back(); path.pop_back();
 
 
 	while(1) {
@@ -498,9 +471,9 @@ void board::drawPath(Queue &q) {
 		if (isEnd) break;
 		prev = curr;
 		curr = next;
-		isEnd = isQueueEmpty(q);
+		isEnd = path.empty();
 		if (!isEnd) {
-			next = front(q); pop(q);
+			next = path.back(); path.pop_back();
 		}
 	}
 }
@@ -515,7 +488,7 @@ void board::gameLoop() {
 	bool cur1_selected = false;
 	displayBoard();
 
-	Queue path;
+	vector<Coordinate> path;
 	cur1 = cur2 = {1, 1};
 	highlightPos(cur1, BG_CYAN, TEXT_WHITE);
 	
@@ -560,7 +533,7 @@ void board::gameLoop() {
 				}
 				if (letter_board[cur2.y][cur2.x] == 0) continue;
 				if (cur1 != cur2 && letter_board[cur1.y][cur1.x] == letter_board[cur2.y][cur2.x] 
-					&& findPath(path, cur1, cur2)
+					&& match(cur1, cur2, path)
 				) {
 					drawPath(path);	//* Nho chuyen xuong
 					highlightPos(cur1, BG_GREEN, TEXT_WHITE);

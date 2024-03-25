@@ -6,6 +6,8 @@
 #include <cstring>
 #include <math.h>
 #include <time.h>
+#include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -137,8 +139,8 @@ struct board{
 
     //* display
 
-    int cell_width = 7;
-	int cell_height = 3;
+    int cell_width = 3;
+	int cell_height = 1;
     int x_offset = 0;
     int y_offset = 0;
 
@@ -165,12 +167,16 @@ struct board{
 	bool isBoardEmpty();
     bool findPath(Queue &path, Coordinate start, Coordinate end);
 
+    bool isVisited(Coordinate point, vector<Coordinate> path);
+    bool bfs(Coordinate start, Coordinate end, vector<Coordinate> &path);
+    bool match(Coordinate first, Coordinate second, vector<Coordinate> &path);
+
 	void moveCursor(Coordinate &cur, int inp);
     void highlightPos(Coordinate pos, const string bg_color, const string text_color);
     void unhighlightPos(Coordinate pos);
     void displayBoard();
     void removeCell(Coordinate pos);
-    void drawPath(Queue &q);
+    void drawPath(vector<Coordinate> path);
     void gameLoop();
 };
 
