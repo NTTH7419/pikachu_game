@@ -36,9 +36,10 @@ const string BG_CYAN = "\x1B[46m";     // for cursor
 const string BG_GRAY = "\x1B[100m";    // for hint pair
 
 // text
-const string TEXT_GREEN = "\x1B[32m";  // for correct
+const string TEXT_GREEN = "\x1B[32m";  // for correct path
 const string TEXT_BLUE = "\x1B[34m";   // for letters in light mode
 const string TEXT_YELLOW = "\x1B[93m"; // for letters in dark mode
+const string TEXT_MAGENTA = "\x1B[95m"; // for letters in dark mode
 const string TEXT_WHITE = "\x1B[97m";  // for other characters and highlighted cell in dark mode
 const string TEXT_BLACK = "\x1B[30m";  // for other characters in light mode
 
@@ -49,8 +50,6 @@ const char LEFT_DOWN_CORNER = 191;     // ┐
 const char RIGHT_UP_CORNER = 192;      // └
 const char LEFT_UP_CORNER = 217;       // ┘
 const char RIGHT_DOWN_CORNER = 218;    // ┌
-
-
 
 
 enum Direction{
@@ -107,25 +106,6 @@ struct Coordinate{
 };
 
 
-//* Queue Implementation
-struct Node{
-    Coordinate data;
-    Node* pNext;
-};
-
-struct Queue{
-    Node* pHead = NULL;
-    Node* pTail = NULL;
-};
-
-void push(Queue &queue, Coordinate data);
-void pop(Queue &queue);
-bool isQueueEmpty(Queue queue);
-void printQueue(Queue queue);
-Coordinate front(Queue queue);
-
-
-
 
 
 
@@ -139,8 +119,8 @@ struct board{
 
     //* display
 
-    int cell_width = 3;
-	int cell_height = 1;
+    int cell_width = 8;
+	int cell_height = 4;
     int x_offset = 0;
     int y_offset = 0;
 
@@ -165,7 +145,6 @@ struct board{
 	bool isInBoard(Coordinate p);
 	void printBoard();
 	bool isBoardEmpty();
-    bool findPath(Queue &path, Coordinate start, Coordinate end);
 
     bool isVisited(Coordinate point, vector<Coordinate> path);
     bool bfs(Coordinate start, Coordinate end, vector<Coordinate> &path);
@@ -176,10 +155,12 @@ struct board{
     void unhighlightPos(Coordinate pos);
     void displayBoard();
     void removeCell(Coordinate pos);
-    void drawPath(vector<Coordinate> path);
+    queue<Coordinate> drawPath(vector<Coordinate> path);
+    void deletePath(queue<Coordinate> drawn_pixels);
     void gameLoop();
 };
 
+BOOL SetConsoleFontSize(COORD dwFontSize);
 int getInput();
 void goTo(SHORT x, SHORT y);
 void changeTextColor(const string bg_color, const string text_color);

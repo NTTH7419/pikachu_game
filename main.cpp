@@ -1,7 +1,8 @@
 #include "board.h"
 
 int main() {
-	int height = 20, width = 20;
+	cout << "\33[?25l";	// hide console cursor
+	int height = 5, width = 8;
 
 	board game_board = board(height, width);
 	game_board.gameLoop();

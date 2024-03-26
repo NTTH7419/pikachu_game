@@ -258,10 +258,9 @@ consider the following game board illustrated by a 2D array in 0-based index:
 
 ---------------------------------------------------------------------------------------------------------
 
-FORMAT COMMAND PROMPT
-https://www.geeksforgeeks.org/colorizing-text-and-console-background-in-c/
-normal P = 15
-highlighted P = 240
+COLORING COMMAND PROMPT
+https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c
+https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
 
 GET KEY PRESS
 https://stackoverflow.com/questions/24708700/c-detect-when-user-presses-arrow-key
@@ -269,3 +268,5 @@ https://stackoverflow.com/questions/24708700/c-detect-when-user-presses-arrow-ke
 BREADTH FIRST SEARCH GRID SHORTEST PATH
 https://www.youtube.com/watch?v=KiCBXu4P-2Y
 
+HIDE CONSOLE CURSOR
+https://stackoverflow.com/questions/30126490/how-to-hide-console-cursor-in-c

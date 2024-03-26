@@ -1,53 +1,13 @@
 #include "board.h"
 
-
-//* Queue Implementation
-
-bool isQueueEmpty(Queue queue){
-    return !queue.pHead;
+BOOL SetConsoleFontSize(COORD dwFontSize){
+    HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_FONT_INFOEX info{sizeof(CONSOLE_FONT_INFOEX)};
+    if (!GetCurrentConsoleFontEx(output, false, &info))
+        return false;
+    info.dwFontSize = dwFontSize;
+    return SetCurrentConsoleFontEx(output, false, &info);
 }
-
-void push(Queue &queue, Coordinate data){
-    Node* pCur = new Node;
-
-    pCur->data = data;
-    pCur->pNext = NULL;
-
-    if (queue.pTail){
-        queue.pTail->pNext = pCur;
-        queue.pTail = pCur;
-    }
-    else{
-        queue.pHead = pCur;
-        queue.pTail = pCur;
-    }
-}
-
-void pop(Queue &queue){
-    if(queue.pHead){
-        Node* pCur = queue.pHead;
-        if (queue.pHead == queue.pTail)
-            queue.pTail = queue.pHead->pNext;
-
-        queue.pHead = queue.pHead->pNext;
-        delete pCur;
-    }
-    else
-        queue.pTail = queue.pHead;
-}
-
-Coordinate front(Queue queue){
-    return queue.pHead->data;
-}
-
-void printQueue(Queue queue){
-    while(queue.pHead){
-        cout << queue.pHead->data.x << " " << queue.pHead->data.y << endl;
-        queue.pHead = queue.pHead->pNext;
-    }
-}
-
-
 
 int getInput() {
 	char inp = getch();
@@ -233,23 +193,23 @@ void board::moveCursor(Coordinate &cur, int inp) {
 	}
 	else if (inp == 3) {
 		cur.y += 1;
-		if (cur.y > width) cur.y = 1;
+		if (cur.y > height) cur.y = 1;
 	}
 	else if (inp == 4) {
 		cur.x += 1;
-		if (cur.x > height) cur.x = 1;
+		if (cur.x > width) cur.x = 1;
 	}
 }
 
 void board::highlightPos(Coordinate pos, const string bg_color, const string text_color) {
 	changeTextColor(bg_color, text_color);
-	for (int i = 1; i <= cell_height; i++) {
-		goTo(x_offset + (cell_width + 1) * pos.x + 1,
-			 y_offset + (cell_height + 1) * pos.y + i);
-		cout << string(cell_width, ' ');
+	for (int i = 1; i < cell_height; i++) {
+		goTo(x_offset + cell_width * pos.x + 1,
+			 y_offset + cell_height * pos.y + i);
+		cout << string(cell_width - 1, ' ');
 	}
-	goTo(x_offset + (cell_width + 1) * pos.x + (cell_width + 1) / 2,
-		 y_offset + (cell_height + 1) * pos.y + (cell_height + 1) / 2);
+	goTo(x_offset + cell_width * pos.x + cell_width / 2,
+		 y_offset + cell_height * pos.y + cell_height / 2);
 		cout << letter_board[pos.y][pos.x];
 	changeTextColor(BG_BLACK, TEXT_WHITE);
 }
@@ -266,29 +226,29 @@ void board::displayBoard() {
 	string row_sep;
 	row_sep = ' ';
 	for (int i = 0; i < width; i++) {
-		row_sep += string(cell_width, HORIZONTAL_EDGE) + ' ';
+		row_sep += string(cell_width - 1, HORIZONTAL_EDGE) + ' ';
 	}
 
 	// create spliter line
 	string spliter_line;
-	spliter_line = '|';
+	spliter_line = VERTICAL_EDGE;
 	for (int i = 0; i < width; i++) {
-		spliter_line += string(cell_width, ' ') + '|';
+		spliter_line += string(cell_width - 1, ' ') + VERTICAL_EDGE;
 	}
 
 	// draw board
 	int line = 0;
-	goTo(x_offset + (cell_width + 1), y_offset + (cell_height + 1));	// offset + outline
+	goTo(x_offset + cell_width, y_offset + cell_height);	// offset + outline
 	cout << row_sep;
 	line++;
 	Sleep(50);
 	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < cell_height; j++) {
-			goTo(x_offset + (cell_width + 1), y_offset + (cell_height + 1) + line++);	// offset + outline + line_number
+		for (int j = 0; j < cell_height - 1; j++) {
+			goTo(x_offset + cell_width, y_offset + cell_height + line++);	// offset + outline + line_number
 			cout << spliter_line;
 			Sleep(50);
 		}
-		goTo(x_offset + cell_width + 1, y_offset + (cell_height + 1) + line++);
+		goTo(x_offset + cell_width, y_offset + cell_height + line++);
 		cout << row_sep;
 		Sleep(50);
 	}
@@ -297,8 +257,8 @@ void board::displayBoard() {
 	changeTextColor(BG_BLACK, TEXT_YELLOW);
 	for (int i = 1; i <= height; i++) {
 		for (int j = 1; j <= width; j++) {
-			goTo(x_offset + j * (cell_width + 1) + (cell_width + 1) / 2,
-				 y_offset + i * (cell_height + 1) + (cell_height + 1) / 2);	// offset + cell pos + letter pos in cell
+			goTo(x_offset + j * cell_width + cell_width / 2,
+				 y_offset + i * cell_height + cell_height / 2);	// offset + cell pos + letter pos in cell
 			cout << letter_board[i][j];
 			Sleep(50);
 		}
@@ -311,8 +271,8 @@ void board::removeCell(Coordinate pos) {
 
 	letter_board[pos.y][pos.x] = 0;
 
-	goTo(x_offset + pos.x * (cell_width + 1) + (cell_width + 1) / 2,
-		 y_offset + pos.y * (cell_height + 1) + (cell_height + 1) / 2);
+	goTo(x_offset + pos.x * cell_width + cell_width / 2,
+		 y_offset + pos.y * cell_height + cell_height / 2);
 
 	cout << ' ';
 
@@ -324,39 +284,44 @@ void board::removeCell(Coordinate pos) {
 
 	changeTextColor(BG_BLACK, TEXT_WHITE);
 	if (left) {		// check left side
-		for (int i = 1; i <= cell_height; i++) {
-			goTo(x_offset + (cell_width + 1) * pos.x,
-				 y_offset + (cell_height + 1) * pos.y + i);
+		for (int i = 1; i < cell_height; i++) {
+			goTo(x_offset + cell_width * pos.x,
+				 y_offset + cell_height * pos.y + i);
 			cout << ' ';
 		}
 	}
 
 	if (right) {	// check right side
-		for (int i = 1; i <= cell_height; i++) {
-			goTo(x_offset + (cell_width + 1) * pos.x + cell_width,
-				 y_offset + (cell_height + 1) * pos.y + i);
+		for (int i = 1; i < cell_height; i++) {
+			goTo(x_offset + cell_width * pos.x + cell_width,
+				 y_offset + cell_height * pos.y + i);
 			cout << ' ';
 		}
 	}
 
 	if (top) {		// check above
-		goTo(x_offset + (cell_width + 1) * pos.x + 1,
-			 y_offset + (cell_height + 1) * pos.y);
-		cout << string(cell_width, ' ');
+		goTo(x_offset + cell_width * pos.x + 1,
+			 y_offset + cell_height * pos.y);
+		cout << string(cell_width - 1, ' ');
 	}
 
 	if (bottom) {	// check below
-		goTo(x_offset + (cell_width + 1) * pos.x + 1,
-			 y_offset + (cell_height + 1) * pos.y + cell_height);
-		cout << string(cell_width, ' ');
+		goTo(x_offset + cell_width * pos.x + 1,
+			 y_offset + cell_height * pos.y + cell_height);
+		cout << string(cell_width - 1, ' ');
 	}
 }
 
-void board::drawPath(vector<Coordinate> path) {
+queue<Coordinate> board::drawPath(vector<Coordinate> path) {
+	queue<Coordinate> drawn_pixels;
 	Coordinate prev, curr, next;
 	Vector prev_curr, curr_next;
+
+	int	x, y; 
+
 	bool isStart = true , isEnd = false;
 	bool left, right, up, down;
+
 	prev = {-1, -1};
 	curr = path.back(); path.pop_back();
 	next = path.back(); path.pop_back();
@@ -402,67 +367,89 @@ void board::drawPath(vector<Coordinate> path) {
 		// draw path
 		changeTextColor(BG_BLACK, TEXT_GREEN);
 		if (left) {
-			goTo(x_offset + (cell_width + 1) * curr.x + 1,
-				 y_offset + (cell_height + 1) * curr.y + (cell_height + 1) / 2);
-			if (!isStart && !isEnd) cout << string((cell_width + 1) / 2, HORIZONTAL_EDGE);
-			else cout << HORIZONTAL_EDGE;
+			x = x_offset + cell_width * curr.x + 1;
+			y = y_offset + cell_height * curr.y + cell_height / 2;
+			goTo(x, y);
+			if (!isStart && !isEnd) {
+				for (int i = 0; i < cell_width / 2; i++) {
+					cout << HORIZONTAL_EDGE;
+					drawn_pixels.push({x + i, y});
+				}
+			}
+			else{
+				cout << HORIZONTAL_EDGE;
+				drawn_pixels.push({x, y});
+			}
 		}
 
 		if (right) {
 			if (!isStart && !isEnd) {
-				goTo(x_offset + (cell_width + 1) * curr.x + (cell_width + 1) / 2,
-					 y_offset + (cell_height + 1) * curr.y + (cell_height + 1) / 2);
-				cout << string((cell_width + 1) / 2 + 1, HORIZONTAL_EDGE);	
+				x = x_offset + cell_width * curr.x + cell_width / 2;
+				y = y_offset + cell_height * curr.y + cell_height / 2;
+				goTo(x, y);
+				for (int i = 0; i < cell_width / 2 + 1; i++) {
+					cout << HORIZONTAL_EDGE;
+					drawn_pixels.push({x + i, y});
+				}
 			}
 			else {
-				goTo(x_offset + (cell_width + 1) * curr.x + cell_width,
-					 y_offset + (cell_height + 1) * curr.y + (cell_height + 1) / 2);
+				x = x_offset + cell_width * curr.x + cell_width - 1;
+				y = y_offset + cell_height * curr.y + cell_height / 2;
+				goTo(x, y);
 				cout << HORIZONTAL_EDGE << HORIZONTAL_EDGE;
+				drawn_pixels.push({x, y});
+				drawn_pixels.push({x + 1, y});
 			}
 		}
 
 		if (up) {
 			if(!isStart && !isEnd) {
-				for (int i = 1; i <= (cell_height + 1) / 2; i++) {
-					goTo(x_offset + (cell_width + 1) * curr.x + (cell_width + 1) / 2,
-						 y_offset + (cell_height + 1) * curr.y + i);
+				x = x_offset + cell_width * curr.x + cell_width / 2;
+				y = y_offset + cell_height * curr.y;
+				for (int i = 1; i <= cell_height / 2; i++) {
+					goTo(x, y + i);
 					cout << VERTICAL_EDGE;
+					drawn_pixels.push({x, y + i});
 				}
 			}
 		}
 
 		if (down) {
-			goTo(x_offset + (cell_width + 1) * curr.x + (cell_width + 1) / 2,
-				 y_offset + (cell_height + 1) * curr.y + (cell_height + 1));
+			x = x_offset + cell_width * curr.x + cell_width / 2;
+			y = y_offset + cell_height * curr.y + cell_height;
+			goTo(x, y);
 			cout << VERTICAL_EDGE;
+			drawn_pixels.push({x, y});
 			if(!isStart && !isEnd) {
-				for (int i = (cell_height + 1) / 2; i <= cell_height; i++) {
-					goTo(x_offset + (cell_width + 1) * curr.x + (cell_width + 1) / 2,
-						 y_offset + (cell_height + 1) * curr.y + i);
+				x = x_offset + cell_width * curr.x + cell_width / 2;
+				y = y_offset + cell_height * curr.y;
+				for (int i = cell_height / 2; i < cell_height; i++) {
+					goTo(x, y + i);
 					cout << VERTICAL_EDGE;
+					drawn_pixels.push({x, y + i});
 				}
 			}
 		}
 
 		if (!isStart && !isEnd) {
 			if (left && up) {
-				goTo(x_offset + (cell_width + 1) * curr.x + (cell_width + 1) / 2,
-					 y_offset + (cell_height + 1) * curr.y + (cell_height + 1) / 2);
+				goTo(x_offset + cell_width * curr.x + cell_width / 2,
+					 y_offset + cell_height * curr.y + cell_height / 2);
 				cout << LEFT_UP_CORNER;
 			}
 			else if (left && down) {
-				goTo(x_offset + (cell_width + 1) * curr.x + (cell_width + 1) / 2,
-					 y_offset + (cell_height + 1) * curr.y + (cell_height + 1) / 2);
+				goTo(x_offset + cell_width * curr.x + cell_width / 2,
+					 y_offset + cell_height * curr.y + cell_height / 2);
 				cout << LEFT_DOWN_CORNER;
 			}
 			else if (right && up) {
-				goTo(x_offset + (cell_width + 1) * curr.x + (cell_width + 1) / 2,
-					 y_offset + (cell_height + 1) * curr.y + (cell_height + 1) / 2);
+				goTo(x_offset + cell_width * curr.x + cell_width / 2,
+					 y_offset + cell_height * curr.y + cell_height / 2);
 				cout << RIGHT_UP_CORNER;
 			}
 			else if (right && down) {
-				goTo(x_offset + (cell_width + 1) * curr.x + (cell_width + 1) / 2,
-					 y_offset + (cell_height + 1) * curr.y + (cell_height + 1) / 2);
+				goTo(x_offset + cell_width * curr.x + cell_width / 2,
+					 y_offset + cell_height * curr.y + cell_height / 2);
 				cout << RIGHT_DOWN_CORNER;
 			}
 		}
@@ -476,6 +463,19 @@ void board::drawPath(vector<Coordinate> path) {
 			next = path.back(); path.pop_back();
 		}
 	}
+	return drawn_pixels;
+}
+
+void board::deletePath(queue<Coordinate> drawn_pixels) {
+	int x, y;
+	Coordinate curr;
+	while (!drawn_pixels.empty()) {
+		curr = drawn_pixels.front(); drawn_pixels.pop();
+		x = curr.x;
+		y = curr.y;
+		goTo(x, y);
+		cout << ' ';
+	}
 }
 
 void board::gameLoop() {
@@ -486,9 +486,11 @@ void board::gameLoop() {
 	Coordinate cur1, cur2;
 	int inp;
 	bool cur1_selected = false;
+	queue<Coordinate> drawn_pixels;
+	vector<Coordinate> path;
+	
 	displayBoard();
 
-	vector<Coordinate> path;
 	cur1 = cur2 = {1, 1};
 	highlightPos(cur1, BG_CYAN, TEXT_WHITE);
 	
@@ -528,6 +530,7 @@ void board::gameLoop() {
 			// matching
 			else {
 				if (cur2 == cur1) {		// deselect cell
+					highlightPos(cur2, BG_CYAN, TEXT_WHITE);
 					cur1_selected = false;
 					continue;
 				}
@@ -535,15 +538,16 @@ void board::gameLoop() {
 				if (cur1 != cur2 && letter_board[cur1.y][cur1.x] == letter_board[cur2.y][cur2.x] 
 					&& match(cur1, cur2, path)
 				) {
-					drawPath(path);	//* Nho chuyen xuong
+					drawn_pixels = drawPath(path);
 					highlightPos(cur1, BG_GREEN, TEXT_WHITE);
 					highlightPos(cur2, BG_GREEN, TEXT_WHITE);
 					Sleep(500);
 
-					unhighlightPos(cur1);
-					unhighlightPos(cur2);
+					deletePath(drawn_pixels);
 					removeCell(cur1);
 					removeCell(cur2);
+					unhighlightPos(cur1);
+					highlightPos(cur2, BG_CYAN, TEXT_WHITE);
 
 					n_cells -= 2;
 					cur1 = cur2;
@@ -560,4 +564,5 @@ void board::gameLoop() {
 			}
 		}
 	}
+	unhighlightPos(cur1);
 }
