@@ -1,40 +1,5 @@
 #include "board.h"
 
-BOOL SetConsoleFontSize(COORD dwFontSize){
-    HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_FONT_INFOEX info{sizeof(CONSOLE_FONT_INFOEX)};
-    if (!GetCurrentConsoleFontEx(output, false, &info))
-        return false;
-    info.dwFontSize = dwFontSize;
-    return SetCurrentConsoleFontEx(output, false, &info);
-}
-
-int getInput() {
-	char inp = getch();
-	if (inp == K_ESC) return -1; 	// ESC
-	if (inp == K_ENTER) return 0; 		// ENTER
-	if (inp == K_W || inp == K_w) return 1;
-	if (inp == K_A || inp == K_a) return 2;
-	if (inp == K_S || inp == K_s) return 3;
-	if (inp == K_D || inp == K_d) return 4;
-	return -2;	// other input
-}
-
-void goTo(SHORT x, SHORT y) {
-	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD Position;
-    Position.X = x;
-    Position.Y = y;
-
-	SetConsoleCursorPosition(hStdout, Position);
-}
-
-// change background and text color
-void changeTextColor(const string bg_color, const string text_color) {
-	cout << bg_color << text_color;
-}
-
-
 void board::init() {
 	srand(time(0) + rand());
 	for (int i = 0; i < height + 2; i++) {
@@ -241,16 +206,16 @@ void board::displayBoard() {
 	goTo(x_offset + cell_width, y_offset + cell_height);	// offset + outline
 	cout << row_sep;
 	line++;
-	Sleep(50);
+	Sleep(500 / (height * cell_height + 1));
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < cell_height - 1; j++) {
 			goTo(x_offset + cell_width, y_offset + cell_height + line++);	// offset + outline + line_number
 			cout << spliter_line;
-			Sleep(50);
+			Sleep(500 / (height * cell_height + 1));
 		}
 		goTo(x_offset + cell_width, y_offset + cell_height + line++);
 		cout << row_sep;
-		Sleep(50);
+		Sleep(500 / (height * cell_height + 1));
 	}
 
 	// put letters in
@@ -260,7 +225,7 @@ void board::displayBoard() {
 			goTo(x_offset + j * cell_width + cell_width / 2,
 				 y_offset + i * cell_height + cell_height / 2);	// offset + cell pos + letter pos in cell
 			cout << letter_board[i][j];
-			Sleep(50);
+			Sleep(500 / (height * width));
 		}
 	}
 	changeTextColor(BG_BLACK, TEXT_WHITE);
