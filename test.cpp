@@ -1,36 +1,26 @@
-#include <iostream>
-#include <windows.h>
+// #include <iostream>
+// #include <windows.h>
 
-using namespace std;
+// using namespace std;
 
-bool isCharAtPosition(SHORT x, SHORT y, char& character) {
-    COORD xy = { 0, 0 };
-    CHAR_INFO ci;
-    SMALL_RECT rect = { x, y, x, y };
-    if (ReadConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE), &ci, {1, 1}, xy, &rect)) {
-        character = ci.Char.AsciiChar;
-        return true;
-    }
-    return false;
-}
-
-// int main() {
-//     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-//     SMALL_RECT windowSize = {0, 0, 720, 720}; // Set the desired width (79) and height (24)
-
-//     SetConsoleWindowInfo(hConsole, TRUE, &windowSize);
-// 	int a;
-//     cout << "Hello World";
-// 	cin >> a;
-
-//     return 0;
+// bool isCharAtPosition(SHORT x, SHORT y, char& character) {
+//     COORD xy = { 0, 0 };
+//     CHAR_INFO ci;
+//     SMALL_RECT rect = { x, y, x, y };
+//     if (ReadConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE), &ci, {1, 1}, xy, &rect)) {
+//         character = ci.Char.AsciiChar;
+//         return true;
+//     }
+//     return false;
 // }
 
 // int main() {
-// 	for (int i = 0; i < 256; i++) {
-// 		cout << i << ' ' << char(i) << endl;
+// 	for (int i = 62; i < 120; i++) {
+// 		cout << char(i);
+// 		if (i % 10 == 0) cout << endl;
 // 	}
-
-
+// 	char c;
+// 	cout << endl << isCharAtPosition(2, 5, c);
+// 	cout << endl << c;
 // 	return 0;
 // }
