@@ -1,13 +1,23 @@
 #include "board.h"
+// typedef struct _CONSOLE_FONT_INFOEX
+// {
+//     ULONG cbSize;
+//     DWORD nFont;
+//     COORD dwFontSize;
+//     UINT  FontFamily;
+//     UINT  FontWeight;
+//     WCHAR FaceName[LF_FACESIZE];
+// } CONSOLE_FONT_INFOEX, *PCONSOLE_FONT_INFOEX;
 
-BOOL SetConsoleFontSize(COORD dwFontSize){
-    HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_FONT_INFOEX info{sizeof(CONSOLE_FONT_INFOEX)};
-    if (!GetCurrentConsoleFontEx(output, false, &info))
-        return false;
-    info.dwFontSize = dwFontSize;
-    return SetCurrentConsoleFontEx(output, false, &info);
-}
+
+// BOOL SetConsoleFontSize(COORD dwFontSize){
+//     HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+//     CONSOLE_FONT_INFOEX info = {sizeof(CONSOLE_FONT_INFOEX)};
+//     if (!GetCurrentConsoleFontEx(output, false, &info))
+//         return false;
+//     info.dwFontSize = dwFontSize;
+//     return SetCurrentConsoleFontEx(output, false, &info);
+// }
 
 int getInput() {
 	char inp = getch();
@@ -36,13 +46,44 @@ void changeTextColor(const string bg_color, const string text_color) {
 
 
 void board::init() {
-	srand(time(0) + rand());
-	for (int i = 0; i < height + 2; i++) {
-		for (int j = 0; j < width + 2; j++) {
-			if (i * j == 0 || i == height + 1 || j == width + 1) letter_board[i][j] = 0;
-			else letter_board[i][j] = 65 + rand() % 5;
-		}
-	}
+	int k = 25; //number of distinct characters
+	// int* count = new int[k] {0};
+
+	vector<char> remaining_char;
+
+    for (int i = 1; i <= ceil(height / 2.0); i++){
+        for (int j = 1; j <= width; j++){
+            char temp = rand() % k + 65;
+            remaining_char.push_back(temp);
+            letter_board[i][j] = temp;
+            if (i == ceil(height / 2.0) && j == ceil(width / 2.0) && height % 2 != 0){
+				break;            
+			}
+        }
+    }
+
+    for (int i = ceil(height / 2.0); i <= height; i++){
+		if (i == ceil(height / 2.0) && height % 2 == 0) i++;
+        for (int j = 1; j <= width; j++){
+            if (i == ceil(height / 2.0) && j == 1 && height % 2 != 0) j = ceil(width / 2.0) + 1;
+			// cout << j << endl;
+            int n = remaining_char.size();
+            // cout << n << endl;
+            int index = rand() % n;
+            letter_board[i][j] = remaining_char[index];
+            // remaining_char.pop_back();
+            remaining_char.erase(remaining_char.begin() + index);
+        }
+		// cout << endl;
+    }
+
+	// for (int i = 1; i <= height; i++){
+	// 	for (int j = 0; j <= width; j++){
+	// 		letter_board[i][j] = 'A';
+	// 	}
+	// }
+
+	// delete[] count;
 }
 
 bool board::isInBoard(Coordinate p){

@@ -6,6 +6,7 @@
 #include <cstring>
 #include <math.h>
 #include <time.h>
+#include <random>
 #include <vector>
 #include <queue>
 
@@ -119,8 +120,8 @@ struct board{
 
     //* display
 
-    int cell_width = 8;
-	int cell_height = 4;
+    int cell_width = 4;
+	int cell_height = 2;
     int x_offset = 0;
     int y_offset = 0;
 
@@ -130,7 +131,7 @@ struct board{
 
         this->letter_board = new char*[height + 2];
         for (int i = 0; i < height + 2; i++)
-            this->letter_board[i] = new char[width + 2];
+            this->letter_board[i] = new char[width + 2] {'\0'};
     }
 
     ~board(){
@@ -164,3 +165,4 @@ BOOL SetConsoleFontSize(COORD dwFontSize);
 int getInput();
 void goTo(SHORT x, SHORT y);
 void changeTextColor(const string bg_color, const string text_color);
+// bool isGameEnd(Board board);

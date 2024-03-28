@@ -2,7 +2,7 @@
 
 int main() {
 	cout << "\33[?25l";	// hide console cursor
-	int height = 5, width = 8;
+	int height = 10, width = 15;
 
 	board game_board = board(height, width);
 	game_board.gameLoop();
