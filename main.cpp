@@ -1,11 +1,13 @@
-#include "board.h"
+#include "menu.h"
 
 int main() {
 	cout << "\33[?25l";	// hide console cursor
-	int height = 10, width = 15;
+	// int height = 10, width = 15;
 
-	board game_board = board(height, width);
-	game_board.gameLoop();
+	// board game_board = board(height, width);
+	// game_board.gameLoop();
+
+	displayMainMenu();
 
 	return 0;
 }

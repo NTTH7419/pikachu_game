@@ -1,51 +1,7 @@
 #include "board.h"
-// typedef struct _CONSOLE_FONT_INFOEX
-// {
-//     ULONG cbSize;
-//     DWORD nFont;
-//     COORD dwFontSize;
-//     UINT  FontFamily;
-//     UINT  FontWeight;
-//     WCHAR FaceName[LF_FACESIZE];
-// } CONSOLE_FONT_INFOEX, *PCONSOLE_FONT_INFOEX;
-
-
-// BOOL SetConsoleFontSize(COORD dwFontSize){
-//     HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-//     CONSOLE_FONT_INFOEX info = {sizeof(CONSOLE_FONT_INFOEX)};
-//     if (!GetCurrentConsoleFontEx(output, false, &info))
-//         return false;
-//     info.dwFontSize = dwFontSize;
-//     return SetCurrentConsoleFontEx(output, false, &info);
-// }
-
-int getInput() {
-	char inp = getch();
-	if (inp == K_ESC) return -1; 	// ESC
-	if (inp == K_ENTER) return 0; 		// ENTER
-	if (inp == K_W || inp == K_w) return 1;
-	if (inp == K_A || inp == K_a) return 2;
-	if (inp == K_S || inp == K_s) return 3;
-	if (inp == K_D || inp == K_d) return 4;
-	return -2;	// other input
-}
-
-void goTo(SHORT x, SHORT y) {
-	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD Position;
-    Position.X = x;
-    Position.Y = y;
-
-	SetConsoleCursorPosition(hStdout, Position);
-}
-
-// change background and text color
-void changeTextColor(const string bg_color, const string text_color) {
-	cout << bg_color << text_color;
-}
-
 
 void board::init() {
+	srand(time(0) + rand());
 	int k = 25; //number of distinct characters
 	// int* count = new int[k] {0};
 
@@ -223,20 +179,20 @@ bool board::match(Coordinate first, Coordinate second, vector<Coordinate> &path)
 }
 
 
-void board::moveCursor(Coordinate &cur, int inp) {
-	if (inp == 1) {
+void board::moveCursor(Coordinate &cur, Input inp) {
+	if (inp == Input::UP) {
 		cur.y -= 1;
 		if (cur.y <= 0) cur.y = height;	// if cursor moves outside of board, it moves to the other side
 	}
-	else if (inp == 2) {
+	else if (inp == Input::LEFT) {
 		cur.x -= 1;
 		if (cur.x <= 0) cur.x = width;	
 	}
-	else if (inp == 3) {
+	else if (inp == Input::DOWN) {
 		cur.y += 1;
 		if (cur.y > height) cur.y = 1;
 	}
-	else if (inp == 4) {
+	else if (inp == Input::RIGHT) {
 		cur.x += 1;
 		if (cur.x > width) cur.x = 1;
 	}
@@ -282,16 +238,16 @@ void board::displayBoard() {
 	goTo(x_offset + cell_width, y_offset + cell_height);	// offset + outline
 	cout << row_sep;
 	line++;
-	Sleep(50);
+	Sleep(500 / (height * cell_height + 1));
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < cell_height - 1; j++) {
 			goTo(x_offset + cell_width, y_offset + cell_height + line++);	// offset + outline + line_number
 			cout << spliter_line;
-			Sleep(50);
+			Sleep(500 / (height * cell_height + 1));
 		}
 		goTo(x_offset + cell_width, y_offset + cell_height + line++);
 		cout << row_sep;
-		Sleep(50);
+		Sleep(500 / (height * cell_height + 1));
 	}
 
 	// put letters in
@@ -301,7 +257,7 @@ void board::displayBoard() {
 			goTo(x_offset + j * cell_width + cell_width / 2,
 				 y_offset + i * cell_height + cell_height / 2);	// offset + cell pos + letter pos in cell
 			cout << letter_board[i][j];
-			Sleep(50);
+			Sleep(500 / (height * width));
 		}
 	}
 	changeTextColor(BG_BLACK, TEXT_WHITE);
@@ -525,7 +481,7 @@ void board::gameLoop() {
 
 	int n_cells = height * width;
 	Coordinate cur1, cur2;
-	int inp;
+	Input inp;
 	bool cur1_selected = false;
 	queue<Coordinate> drawn_pixels;
 	vector<Coordinate> path;
@@ -539,13 +495,13 @@ void board::gameLoop() {
 		inp = getInput();
 
 		// invalid input
-		if (inp == -2) continue;
+		if (inp == Input::INVALID) continue;
 
 		// escape
-		if (inp == -1) break;
+		if (inp == Input::ESCAPE) break;
 		
 		// move cursor
-		if (inp > 0) {
+		if (inp == Input::UP || inp == Input::LEFT || inp == Input::DOWN || inp == Input::RIGHT) {
 			if (!cur1_selected) {
 				unhighlightPos(cur1);
 				moveCursor(cur1, inp);
@@ -603,6 +559,11 @@ void board::gameLoop() {
 				}
 				cur1_selected = false;
 			}
+		}
+
+		// show hint
+		if (inp == Input::HINT) {
+			;
 		}
 	}
 	unhighlightPos(cur1);
