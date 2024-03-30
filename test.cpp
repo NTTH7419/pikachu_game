@@ -15,12 +15,14 @@
 // }
 
 // int main() {
-// 	for (int i = 62; i < 120; i++) {
-// 		cout << char(i);
-// 		if (i % 10 == 0) cout << endl;
-// 	}
-// 	char c;
-// 	cout << endl << isCharAtPosition(2, 5, c);
-// 	cout << endl << c;
+// 	// for (int i = 62; i < 120; i++) {
+// 	// 	cout << char(i);
+// 	// 	if (i % 10 == 0) cout << endl;
+// 	// }
+// 	// char c;
+// 	// cout << endl << isCharAtPosition(2, 5, c);
+// 	// cout << endl << c;
+	
+
 // 	return 0;
 // }

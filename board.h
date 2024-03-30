@@ -1,3 +1,5 @@
+#pragma once
+
 #include "console.h"
 
 #include <iostream>
@@ -66,9 +68,6 @@ struct Coordinate{
 };
 
 
-
-
-
 struct board{
     //* board
 
@@ -79,9 +78,9 @@ struct board{
 
     //* display
 
-    int cell_width = 4;
-	int cell_height = 2;
-    int x_offset = 0;
+    int cell_width = 8;
+	int cell_height = 4;
+    int x_offset = 20;
     int y_offset = 0;
 
     board(int height, int width){
@@ -101,7 +100,7 @@ struct board{
 
     }
 
-	void init();
+	void initBoard();
 	bool isInBoard(Coordinate p);
 	void printBoard();
 	bool isBoardEmpty();
@@ -110,12 +109,18 @@ struct board{
     bool bfs(Coordinate start, Coordinate end, vector<Coordinate> &path);
     bool match(Coordinate first, Coordinate second, vector<Coordinate> &path);
 
-	void moveCursor(Coordinate &cur, Input inp);
-    void highlightPos(Coordinate pos, const string bg_color, const string text_color);
-    void unhighlightPos(Coordinate pos);
+    void highlightCell(Coordinate pos, const string bg_color, const string text_color);
+    void unhighlightCell(Coordinate pos);
+    void highlightCursor(Coordinate pos);
+    void highlightSelected(Coordinate pos);
+    void highlightCorrectPair(Coordinate pos1, Coordinate pos2);
+    void highlightWrongPair(Coordinate pos1, Coordinate pos2);
+    void highlightHintPair(Coordinate pos1, Coordinate pos2);
+
+    char getLetter(Coordinate pos);
+    bool isValid(Coordinate pos);
     void displayBoard();
     void removeCell(Coordinate pos);
     queue<Coordinate> drawPath(vector<Coordinate> path);
     void deletePath(queue<Coordinate> drawn_pixels);
-    void gameLoop();
 };

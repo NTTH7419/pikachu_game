@@ -1,7 +1,14 @@
-#include "board.h"
+#pragma once
+
+#include "game.h"
+#include "console.h"
 #include <fstream>
 
 using namespace std;
+
+#define EASY 1
+#define MEDIUM 2
+#define HARD 3
 
 struct button {
 	string text;
