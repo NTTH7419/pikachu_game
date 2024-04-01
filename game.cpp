@@ -58,16 +58,34 @@ bool game::matchCell(Coordinate cur1, Coordinate cur2) {
 }
 
 void game::showHint() {
-	// temporary
-	Coordinate hint_cell1 = {3, 4};
-	Coordinate hint_cell2 = {5, 2};
+	int height = game_board->height;
+	int width = game_board->width;
 
-	// code to find hint here
+	for (int i = 1; i <= height; i++){
+		for (int j = 1; j <= width; j++){
+			if (game_board->letter_board[i][j] != '\0'){
+				char piece = game_board->letter_board[i][j];
+				int k = i;
+				for (int k = i; k <= height; k++){
+					for (int l = 0; l <= width; l++){
+						vector<Coordinate> temp;
+						if (game_board->letter_board[k][l] == piece && !(i == k && j == l) && game_board->match({j, i}, {l, k}, temp)){
+							Coordinate pos1 = {j, i};
+							Coordinate pos2 = {l, k};
+							game_board->highlightHintPair(pos1, pos2);
+							Sleep(500);
+							game_board->unhighlightCell(pos1);
+							game_board->unhighlightCell(pos2);
+							return;
+						}
+					}
+				} 
+			}
+		}
+	}
 
-	game_board->highlightHintPair(hint_cell1, hint_cell2);
-	Sleep(500);
-	game_board->unhighlightCell(hint_cell1);
-	game_board->unhighlightCell(hint_cell2);
+
+	
 }
 
 void game::updateScore(int bonus_score) {
@@ -106,6 +124,11 @@ void game::gameLoop() {
 
 		// escape
 		if (inp == Input::ESCAPE) break;
+
+		if (inp == Input::SHUFFLE){
+			shuffle(game_board);
+			continue;
+		}
 		
 		// move cursor
 		if (inp == Input::UP || inp == Input::LEFT || inp == Input::DOWN || inp == Input::RIGHT) {
@@ -184,4 +207,26 @@ void game::gameFinished() {
 	cout << "Press any key to go back";
 	getInput();
 	system("cls");
+}
+
+void game::shuffle(board* game_board){
+	srand(time(NULL));
+
+	for (int n = 0; n < game_board->height * game_board->width; n++){
+		int i = rand() % game_board->height + 1;
+		int j = rand() % game_board->width + 1;
+
+		int k = rand() % game_board->height + 1;
+		int l = rand() % game_board->width + 1;
+
+		if (game_board->letter_board[i][j] != '\0' && game_board->letter_board[k][l] != '\0'){
+			Coordinate pos1 = {j, i};
+			Coordinate pos2 = {l, k};
+
+			swap(game_board->letter_board[i][j], game_board->letter_board[k][l]);
+			game_board->unhighlightCell(pos1);
+			game_board->unhighlightCell(pos2);
+		}
+	}
+
 }

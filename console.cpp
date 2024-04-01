@@ -9,6 +9,7 @@ Input getInput() {
 	if (inp == K_S || inp == K_s) return Input::DOWN;
 	if (inp == K_D || inp == K_d) return Input::RIGHT;
 	if (inp == K_H || inp == K_h) return Input::HINT;
+	if (inp == K_R || inp == K_r) return Input::SHUFFLE;
 	return Input::INVALID;	// other input
 }
 

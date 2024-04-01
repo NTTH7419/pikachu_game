@@ -237,10 +237,7 @@ In a standard pikachu matching game, for any two pieces on the board to be consi
 - There exists a path to visually connect the two
 - The path itself consists of straight lines and must have the shape of one of these following letters: I L U Z
 
-
-
-
-
+From those conditions above, an algorithm will be constructed called "matching algorithm"
 
 
 consider the following game board illustrated by a 2D array in 0-based index:
@@ -251,6 +248,134 @@ consider the following game board illustrated by a 2D array in 0-based index:
 2    C  C  C  C  C
 3    D  D  D  D  D 
 4    E  E  E  E  E
+
+
+The matching algorithm will attempt to find a path between two different pieces of the same character, which will return
+true and the path if found and valid, or false if any of the said conditions above is not satisfied.
+
+However, this configuration has a fault: if the path exists outside of the matrix (i.e: the (0, 0) and the (0, 5) pieces), 
+the algorithm will have no practical way to find and store it. Therefore, the board configuration will be changed, 
+a border around the matrix will be created to find the paths for said scenario, which will be inaccessible and invisible to the player
+serving the only purpose for the matching algorithm (and drawing the path later on), the actual board displayed in-game will be the 
+1-based index submatrix as depicted below
+
+
+    0  1  2  3  4  5  6
+0
+1      A  A  A  A  A
+2      B  B  B  B  B
+3      C  C  C  C  C
+4      D  D  D  D  D 
+5      E  E  E  E  E
+6
+
+with that established, the algorithm will be broken down into these steps:
+- check if the two pieces selected are valid (exist in the 1-based matrix, has not been deleted, different in position)
+- find a valid path between these two pieces 
+
+for the path-finding algorithm, a variety of algorithms are considered: Depth-First Seach, Breadth-First Search, Dijkstra, A*
+As the scale of the board is rather small, (the intended maximum size of the board is around 25x25), Dijkstra and A* are not necessary 
+However, the path must be shortest as it makes more sense for the game to visualize the ideal path to the player. Therefore, Breadth-First Search (BFS)
+is chosen for this algorithm.
+
+The idea behind BFS is that it searches for the path by visiting the neighboring points in Breadth
+it is done so using a queue:
+
+     mark the starting point as visited
+     push the starting point into the queue
+
+     then while the queue is not empty:
+          pop out the front point of the queue
+          if it is the ending point, return
+
+          
+          else visit all unvisited neighboring points:
+               if the new point is valid:
+                    mark it as unvisited
+                    push it into the queue
+
+
+
+However, the desired path for the matching algorithm must be in the shape of I U L or Z. Meaning the path must consist of
+straght lines and the number of turns must not exceed two. (I has zero turn, L has one turn, U and Z have 2 turns).
+The algorithm will need to find the shortest path between two points by searching for neighboring points from the starting point while ensuring the number of turns of the path taken never exceeds two.
+
+One way to find such path is storing the current direction of each point and the number of turns the path has up to that point,
+each time visiting a new point, if there is a change in the direction then the number of turns will be incremented up to two.
+
+
+The algorithm also needs to store the path in order to visualize it later, this will be stored in a stack.
+
+In conclusion, each element of the queue has 3 components:
+ - the path leading up to this point
+ - the number of turns of the path
+ - the current direction of this point
+
+ after modifying the algorithm becomes:
+
+     marking the starting point as visited
+     first element = (starting point, 0 turns, NEUTRAL direction)
+     push the first element into the queue
+
+     while the queue is not empty:
+          pop out the front element
+          pop out the front point of the path
+          if it is the ending point, return the path
+
+          
+          else check for all unvisited neighboring points in four directions (UP, LEFT, RIGHT, and DOWN):
+               if the new point is valid:
+                    if there is a change in direction and current direction is not NEUTRAL:
+                         if the number of turns is less than two:
+                              push the new point into the path,
+                              new element = (updated path, # turns + 1, new direction)
+                              push new element into the queue
+
+                         else skip this new point
+                    
+                    else push this new point into the path
+                    new element = (updated path, # turns, new direction)
+                    push new element into the queue
+               
+               else skip this new point;
+
+     return false (there is no valid path)
+
+
+The returned path if exists will be used to draw the path between the two pieces and further logic
+
+
+BOARD generating algorithm:
+
+With each game, the playing board must be generated randomly in order to avoid repetition. To precisely generate the board
+there are some rules that need to be followed:
+
+in a matching game, as each piece will be matched with another piece, the total number of pieces will have to be even
+and these pieces exist in pairs scattering over the board in order for a game to be possible to beat.
+There are 26 letters in the english alphabet that can be used to represent a piece, the variety of selectable letters
+will affect the difficulty of the game
+
+Therefore, with a board sizes m * n (either m or n must be even), (m * n) / 2 pairs will need to be randomly generated
+
+
+An intuitive solution is to only randomly generate the first half of the board, as the second half is just a permutation of the 
+first one.
+
+
+
+with that said, the algorithm to generate the board randomly each time is:
+
+     accessing each row of the board
+          accessing each collumn of the board
+               if current piece is in the first half of the board:
+                    pick a random character from k distinct characters
+                    assign this character to the current piece
+                    append the chosen character to the list
+
+               
+               else pick a random character from the list
+                    assign this character to the current piece
+                    remove that character from the list
 
 
 

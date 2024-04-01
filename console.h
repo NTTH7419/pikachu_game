@@ -16,7 +16,8 @@ enum Input{
 	LEFT 		= 2,
 	DOWN 		= 3,
 	RIGHT 		= 4,
-	HINT 		= 5
+	HINT 		= 5,
+	SHUFFLE     = 6
 };
 
 
@@ -33,6 +34,8 @@ const char K_D 		= 'D';		// right
 const char K_d 		= 'd';		// right
 const char K_H 		= 'H';		// hint
 const char K_h 		= 'h';		// hint
+const char K_r		= 'r';		// shuffle
+const char K_R		= 'R';		//shuffle
 
 
 
@@ -53,7 +56,7 @@ struct game_color {
 		const string TEXT_GREEN 	= "\33[32m";  			// for correct path
 		const string TEXT_BLUE 		= "\33[34m";   			// for letters in light mode
 		const string TEXT_YELLOW 	= "\33[93m"; 			// for letters in dark mode
-		const string TEXT_PURPLE		= "\33[38;5;93m";		// for button text
+		const string TEXT_PURPLE	= "\33[38;5;93m";		// for button text
 		const string TEXT_MAGENTA 	= "\33[95m"; 			// for cell border
 		const string TEXT_WHITE 	= "\33[97m";  			// for other characters and highlighted cell in dark mode
 		const string TEXT_BLACK 	= "\33[30m";  			// for other characters in light mode

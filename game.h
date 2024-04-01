@@ -42,4 +42,5 @@ struct game {
 	bool matchCell(Coordinate cur1, Coordinate cur2);
 	void showHint();
 	void updateScore(int bonus_score);
+	void shuffle(board* game_board);
 };
