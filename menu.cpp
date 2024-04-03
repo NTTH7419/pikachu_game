@@ -1,52 +1,36 @@
 #include "menu.h"
 
 
-void button::displayButton() {
-	changeTextColor(color.BG_main_bg, color.TXT_button_drawing);
-	for (int i = 0; i < height; i++) {
-		goTo(x, y + i);
-		if (i == 0) {
-			cout << D_RIGHT_DOWN_CORNER;
-			cout << string(width - 2, D_HORIZONTAL_EDGE);
-			cout << D_LEFT_DOWN_CORNER;
-		}
-		else if (i == height - 1) {
-			cout << D_RIGHT_UP_CORNER;
-			cout << string(width - 2, D_HORIZONTAL_EDGE);
-			cout << D_LEFT_UP_CORNER;
-		}
-		else {
-			cout << D_VERTICAL_EDGE;
-			cout << string(width - 2, ' ');
-			cout << D_VERTICAL_EDGE;
-		}
-	}
-	changeTextColor(color.BG_main_bg, color.TXT_button_text);
-	int len = text.length();
-	goTo(x + (width - 2 - len) / 2 + (len % 2 == 1) + 1, y + height / 2);
-	cout << text;
+void Button::displayButton() {
+	changeTextColor(colors.BG_main_bg, colors.TXT_button_drawing);
+	drawBox(x, y, width, height);
+
+	changeTextColor(colors.BG_main_bg, colors.TXT_button_text);
+	int len = option.length();
+	goTo(x + (width - len) / 2, y + height / 2);
+	cout << option;
 }
 
-void button::highlightButton(const string bg_color = color.BG_button_selecting,
-							 const string text_color = color.TXT_button_highlight_text) {
+void Button::highlightButton(const string bg_color = colors.BG_button_selecting,
+							 const string text_color = colors.TXT_button_highlight_text) {
 	changeTextColor(bg_color, text_color);
 	for (int i = 1; i < height - 1; i++) {
 		goTo(x + 1, y + i);
 		cout << string(width - 2, ' ');
 		cout << endl;
 	}
-	int len = text.length();
-	goTo(x + (width - 2 - len) / 2 + (len % 2 == 1) + 1, y + height / 2);
-	cout << text;
-	changeTextColor(color.BG_main_bg, color.TXT_main_text);
+	int len = option.length();
+	goTo(x + (width - len) / 2, y + height / 2);
+	cout << option;
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 }
 
-void button::unhighlightButton() {
-	highlightButton(color.BG_main_bg, color.TXT_button_text);
+void Button::unhighlightButton() {
+	highlightButton(colors.BG_main_bg, colors.TXT_button_text);
 }
 
-void button::removeButton() {
-	changeTextColor(color.BG_main_bg, color.TXT_main_text);
+void Button::removeButton() {
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	for (int i = 0; i < height; i++) {
 		goTo(x, y + i);
 		cout << string(width, ' ');
@@ -54,53 +38,54 @@ void button::removeButton() {
 }
 
 
-
-string* readTitle(int &title_hight) {
-	title_hight = 0;
+void Menu::loadTitle() {
+	title_height = 0;
+	title_width = 0;
 	string line;
 	ifstream fin;
+
+	// read title dimension
 	fin.open("title.txt");
 	while(getline(fin, line)) {
-		title_hight++;
+		title_height++;
+		if (line.length() > title_width)
+			title_width = line.length();
 	}
-
 	fin.close();
-	fin.open("title.txt");
 
-	string* title = new string[title_hight];
-	for (int i = 0; i < title_hight; i++) {
+	// read title
+	fin.open("title.txt");
+	title = new string[title_height];
+	for (int i = 0; i < title_height; i++) {
 		getline(fin, title[i]);
 	}
 	fin.close();
-	return title;
 }
 
-void printTitle(string* title, int title_height, int x, int y) {
-
-	// print title
+void Menu::displayTitle() {
 	string line;
 	for (int i = 0; i < title_height; i++) {
-		goTo(x, y + i);
+		goTo(title_x, title_y + i);
 		line = title[i];
 		for (int j = 0; j < line.length(); j++) {
 			if (line[j] != '#') {
-				changeTextColor(color.BG_main_bg, color.TXT_main_text);
+				changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 				cout << line[j];
 			}
 			else {
-				changeTextColor(color.BG_title, color.TXT_main_text);
+				changeTextColor(colors.BG_title, colors.TXT_main_text);
 				cout << ' ';
 			}
 		}
-		changeTextColor(color.BG_main_bg, color.BG_main_bg);
+		changeTextColor(colors.BG_main_bg, colors.BG_main_bg);
 		cout << endl;
 	}
 }
 
-void button_list::displayButtonList() {
+void Options_list::displayOptionsList() {
 	int len = button_instruction.length();
 	goTo(x + (button_arr[0].width - len) / 2 + (len & 2 == 1), y);
-	changeTextColor(color.BG_main_bg, color.TXT_main_text);
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	cout << button_instruction;
 
 	for (int i = 0; i < number_of_buttons; i++) {
@@ -109,10 +94,10 @@ void button_list::displayButtonList() {
 }
 
 
-void button_list::removeButtonList() {
+void Options_list::removeOptionsList() {
 	int len = button_instruction.length();
 	goTo(x + (button_arr[0].width - len) / 2 + (len & 2 == 1), y);
-	changeTextColor(color.BG_main_bg, color.TXT_main_text);
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	cout << string(len, ' ');
 
 	for (int i = 0; i < number_of_buttons; i++) {
@@ -120,7 +105,8 @@ void button_list::removeButtonList() {
 	}
 }
 
-string button_list::selectButton() {
+string Options_list::selectOption() {
+	displayOptionsList();
 	Input inp;
 	int cur = 0;
 	button_arr[cur].highlightButton();
@@ -144,101 +130,148 @@ string button_list::selectButton() {
 		}
 
 		else if (inp == Input::ENTER) {
-			return button_arr[cur].text;
+			removeOptionsList();
+			return button_arr[cur].option;
 		}
 	}
 }
 
-void startGame(int difficulty) {
-	game g = game(difficulty);
+void Menu::startGame(int difficulty) {
+	Game g = Game(difficulty);
 	g.initGame();
 	g.gameLoop();
 	g.gameFinished();
 }
 
+void Menu::showInfo() {
+	goTo(25, 15);
+	cout << "Welcome to ";
+	changeTextColor(colors.BG_main_bg, colors.TEXT_YELLOW);
+	cout << "Pikachu++";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << ", a matching game on console. ";
+	cout << "This is a project for Programing Techniques course at ";
+	changeTextColor(colors.BG_main_bg, colors.TXT_blue);
+	cout << "FIT@HCMUS";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << ".";
 
-void displayMainMenu() {
-	string *title;
-	int title_height;
-	title = readTitle(title_height);
-	printTitle(title, title_height, 20, 0);
-	int x_offset = 50;	// position of the menu
-	int y_offset = 10;
-	string selection;
+	goTo(25, 17);
+	cout << "This project is made by ";
+	changeTextColor(colors.BG_main_bg, colors.TEXT_RED);
+	cout << "Phung Ngoc Tuan";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << " and ";
+	changeTextColor(colors.BG_main_bg, colors.TEXT_RED);
+	cout << "Ngo Quang Thang";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << ", under the instruction of ";
+	changeTextColor(colors.BG_main_bg, colors.TEXT_ORANGE);
+	cout << "MSc. Bui Huy Thong";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << " and ";
+	changeTextColor(colors.BG_main_bg, colors.TEXT_ORANGE);
+	cout << "MSc. Tran Thi Thao Nhi";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << ".";
 
-	string* main_menu_text = new string[5] {"Play", "Highscores", "Infos", "Settings", "Quit Game"}; 
-	string* difficulty_text = new string[4] {"Easy", "Medium", "Hard", "Back"}; 
-	string* quit_text = new string[2] {"Yes", "No"};
+	goTo(25, 19);
+	cout << "Special thanks to ";
+	changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
+	cout << "Nguyen Hoang Minh Tam";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << ", ";
+	changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
+	cout << "Tran Cong Minh";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << " and ";
+	changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
+	cout << "Le Hoang Lam";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << " for discussions during game development.";
 
-	button_list main_menu = button_list("", main_menu_text, 5, x_offset, y_offset);
-	button_list difficulty_menu = button_list("Choose difficulty:", difficulty_text, 4, x_offset, y_offset);
-	button_list quit_menu = button_list("Quit game ?", quit_text, 2, x_offset, y_offset);
+	goTo(70, 23);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
+	cout << "Press ESC to go back to the main menu";
+	while(getInput() != Input::ESCAPE);		// wait for player to press ESC
+	
+	goTo(25, 15);
+	cout << string(150, ' ');
+	goTo(25, 17);
+	cout << string(150, ' ');
+	goTo(25, 19);
+	cout << string(150, ' ');
+	goTo(70, 23);
+	cout << string(150, ' ');
+}
+
+
+void Menu::startMenu() {
+	displayTitle();
 
 	while (1) {
-		main_menu.displayButtonList();
-		selection = main_menu.selectButton();
-		main_menu.removeButtonList();
+		player_selection = main_menu.selectOption();
 
-		if (selection == "Play") {
-			difficulty_menu.displayButtonList();
-			selection = difficulty_menu.selectButton();
-			difficulty_menu.removeButtonList();
+		if (player_selection == "Play") {
+			player_selection = difficulty_menu.selectOption();
 
-			if (selection == "Back") continue;
+			if (player_selection == "Back") {
+				player_selection = "";
+				continue;
+			}
 
-			if (selection == "Easy") {
+			if (player_selection == "Easy") {
+				player_selection = "";
 				startGame(EASY);
-				printTitle(title, title_height, 20, 0);
+				displayTitle();
 				continue;
 			}
 
-			else if (selection == "Medium") {
+			else if (player_selection == "Medium") {
+				player_selection = "";
 				startGame(MEDIUM);
-				printTitle(title, title_height, 20, 0);
+				displayTitle();
 				continue;
 			}
 
-			else if (selection == "Hard") {
+			else if (player_selection == "Hard") {
+				player_selection = "";
 				startGame(HARD);
-				printTitle(title, title_height, 20, 0);
+				displayTitle();
 				continue;
 			}
 		}
 
-		else if (selection == "Highscores") {
+		else if (player_selection == "Highscores") {
+			player_selection = "";
 			system("cls");
 			cout << "Highscores";
 			break;
 		}
 
-		else if (selection == "Infos") {
-			system("cls");
-			cout << "Infos";
-			break;
+		else if (player_selection == "Infos") {
+			player_selection = "";
+			showInfo();
+			continue;
 		}
 
-		else if (selection == "Settings") {
+		else if (player_selection == "Settings") {
+			player_selection = "";
 			system("cls");
 			cout << "Settings";
 			break;
 		}
 
-		else if (selection == "Quit Game") {
-			quit_menu.displayButtonList();
-			selection = quit_menu.selectButton();
-			quit_menu.removeButtonList();
+		else if (player_selection == "Quit Game") {
+			player_selection = quit_menu.selectOption();
 
-			if (selection == "Yes") {
+			if (player_selection == "Yes") {
+				player_selection = "";
 				system("cls");
 				break;
 			}
 
-			else if (selection == "No") continue;
+			else if (player_selection == "No") continue;
 		}
 	}
-
-	delete[] title;
-	delete[] main_menu_text;
-	delete[] difficulty_text;
-	delete[] quit_text;
 }

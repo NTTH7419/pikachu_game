@@ -1,46 +1,54 @@
 #pragma once
 
-#include "menu.h"
+// #include "menu.h"
 #include "board.h"
+#include <iomanip>
 
-struct game {
-	board *game_board;
-	int board_height;
-	int board_width;
+struct Time {
+	int min, sec;
 
-	int score;
-	string name;
-
-	game(int difficulty) {
-		if (difficulty == 1) {
-			board_height = 6;
-			board_width = 8;
-			game_board = new board(board_height, board_width);
-		}
-		else if (difficulty == 2) {
-			board_height = 8;
-			board_width = 10;
-			game_board = new board(board_height, board_width);
-		}
-		else if (difficulty == 3) {
-			board_height = 8;
-			board_width = 12;
-			game_board = new board(board_height, board_width);
-		}
+	void convert(int second) {
+		min = second / 60;
+		sec = second % 60;
 	}
 
-	~game() {
+	void displayTime() {
+		cout << setfill('0') << setw(2) << min << ':' << setfill('0') << setw(2) << sec;
+	}
+};
+
+struct Game {
+	Board *game_board;
+	int board_height;
+	int board_width;
+	
+	int score = 0;
+	Time play_time;
+	string name;
+
+	bool hint_used = false;
+	bool shuffled = false;
+	int hint_remaining = 3;
+
+	Game(int difficulty) {
+		game_board = new Board(difficulty);
+		board_height = game_board->height;
+		board_width = game_board->width;
+	}
+
+	~Game() {
 		delete game_board;
 	}
 	void initGame();
 	void gameLoop();
 	void gameFinished();
 
-
 	void displayGameInfo();
 	void moveCursor(Coordinate &cur, Input inp);
 	bool matchCell(Coordinate cur1, Coordinate cur2);
 	void showHint();
+	void updateRemainHint();
 	void updateScore(int bonus_score);
-	void shuffle(board* game_board);
+	void shuffleBoard();
+	void inputName(int x, int y);
 };

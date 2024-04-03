@@ -383,9 +383,12 @@ with that said, the algorithm to generate the board randomly each time is:
 
 ---------------------------------------------------------------------------------------------------------
 
-COLORING COMMAND PROMPT
+COLORING TEXT IN CONSOLE
 https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c
-https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
+https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+
+CHANGE CONSOLE COLOR
+https://stackoverflow.com/questions/6460932/change-entire-console-background-color-win32-c
 
 GET KEY PRESS
 https://stackoverflow.com/questions/24708700/c-detect-when-user-presses-arrow-key
@@ -393,5 +396,32 @@ https://stackoverflow.com/questions/24708700/c-detect-when-user-presses-arrow-ke
 BREADTH FIRST SEARCH GRID SHORTEST PATH
 https://www.youtube.com/watch?v=KiCBXu4P-2Y
 
-HIDE CONSOLE CURSOR
+HIDE/ SHOW CONSOLE CURSOR
 https://stackoverflow.com/questions/30126490/how-to-hide-console-cursor-in-c
+
+SET CONSOLE SIZE
+https://stackoverflow.com/a/21238849
+
+DISABLE MAXIMIZE CONSOLE
+https://stackoverflow.com/questions/46145256/disable-maximize-button-c-console-application
+
+HIDE SCROLL BAR
+https://stackoverflow.com/a/66393514
+
+SET CONSOLE TITLE
+https://stackoverflow.com/a/13219228
+
+GET PLAY TIME
+https://stackoverflow.com/questions/876901/calculating-execution-time-in-c
+
+BACKGROUND EASY
+Stonehenge - Art by lgbeard
+https://www.asciiart.eu/buildings-and-places/monuments/stonehenge
+
+BACKGROUND MEDIUM
+Tower Bridge - Art by unknown
+https://www.asciiart.eu/buildings-and-places/monuments/other
+
+BACKGROUND HARD
+Taj Mahal - Art by unknown, had been cropped
+https://www.asciiart.eu/buildings-and-places/monuments/taj-mahal

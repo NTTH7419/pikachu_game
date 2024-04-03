@@ -1,13 +1,6 @@
 #include "game.h"
 
-void game::displayGameInfo() {
-	// temporary
-	goTo(5, 10);
-	changeTextColor(color.BG_main_bg, color.TXT_highlight_text);
-	cout << "Score: 0";
-}
-
-void game::moveCursor(Coordinate &cur, Input inp) {
+void Game::moveCursor(Coordinate &cur, Input inp) {
 	if (inp == Input::UP) {
 		cur.y -= 1;
 		if (cur.y <= 0) cur.y = board_height;	// if cursor moves outside of board, it moves to the other side
@@ -29,13 +22,13 @@ void game::moveCursor(Coordinate &cur, Input inp) {
 	}
 }
 
-bool game::matchCell(Coordinate cur1, Coordinate cur2) {
+bool Game::matchCell(Coordinate cur1, Coordinate cur2) {
 	vector<Coordinate> path;
 	queue<Coordinate> drawn_pixels;
 
 	if (cur1 != cur2 &&
 		game_board->getLetter(cur1) == game_board->getLetter(cur2) &&
-		game_board->match(cur1, cur2, path)) {
+		game_board->bfs(cur1, cur2, path)) {
 
 		drawn_pixels = game_board->drawPath(path);
 		game_board->highlightCorrectPair(cur1, cur2);
@@ -57,25 +50,19 @@ bool game::matchCell(Coordinate cur1, Coordinate cur2) {
 	}
 }
 
-void game::showHint() {
-	int height = game_board->height;
-	int width = game_board->width;
-
-	for (int i = 1; i <= height; i++){
-		for (int j = 1; j <= width; j++){
-			if (game_board->letter_board[i][j] != '\0'){
-				char piece = game_board->letter_board[i][j];
+void Game::showHint() {
+	for (int i = 1; i <= board_height; i++){
+		for (int j = 1; j <= board_width; j++){
+			if (game_board->isValid({j, i}) != '\0'){
+				char piece = game_board->getLetter({j, i});
 				int k = i;
-				for (int k = i; k <= height; k++){
-					for (int l = 0; l <= width; l++){
+				for (int k = i; k <= board_height; k++){
+					for (int l = 0; l <= board_width; l++){
 						vector<Coordinate> temp;
-						if (game_board->letter_board[k][l] == piece && !(i == k && j == l) && game_board->match({j, i}, {l, k}, temp)){
+						if (game_board->getLetter({l, k}) == piece && !(i == k && j == l) && game_board->bfs({j, i}, {l, k}, temp)){
 							Coordinate pos1 = {j, i};
 							Coordinate pos2 = {l, k};
 							game_board->highlightHintPair(pos1, pos2);
-							Sleep(500);
-							game_board->unhighlightCell(pos1);
-							game_board->unhighlightCell(pos2);
 							return;
 						}
 					}
@@ -88,34 +75,172 @@ void game::showHint() {
 	
 }
 
-void game::updateScore(int bonus_score) {
-	// temporary
-	score += bonus_score;
-	goTo(12, 10);
-	changeTextColor(color.BG_main_bg, color.TXT_highlight_text);
+void Game::displayGameInfo() {
+	drawBox(1, 1, 29, 18);
+	drawBox(1, 19, 29, 23);
+
+	// score
+	goTo(5, 3);
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << "Score: ";
+	changeTextColor(colors.BG_main_bg, colors.TXT_blue);
 	cout << score;
+
+	// hint
+	goTo(5, 6);
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << "Hint: ";
+	changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
+	cout << hint_remaining;
+
+	// score rules
+	goTo(10, 10);
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << "Score rules";
+	goTo(4, 12);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
+	cout << "Correct pair +50 pts";
+	goTo(4, 13);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_RED);
+	cout << "Wrong pair/";
+	goTo(6, 14);
+	cout << "can't match -20 pts";
+	goTo(4, 15);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_PURPLE);
+	cout << "Use hint -100 pts";
+	goTo(4, 16);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
+	cout << "Use shuffle -200 pts";
+
+	// play instruction
+	goTo(10, 20);
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << "How to play";
+
+	goTo(4, 22);
+	changeTextColor(colors.BG_main_bg, colors.TXT_blue);
+	cout << "WASD to move cursor:";
+	goTo(4, 23);
+	cout << "- W: UP";
+	goTo(4, 24);
+	cout << "- A: LEFT";
+	goTo(4, 25);
+	cout << "- S: DOWN";
+	goTo(4, 26);
+	cout << "- D: RIGHT";
+
+	goTo(4, 28);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_ORANGE);
+	cout << "ENTER to select, ";
+	goTo(6, 29);
+	cout << "select again to cancel match";
+
+	goTo(4, 31);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_PURPLE);
+	cout << "H to show hint,";
+	goTo(6, 32);
+	cout << "you have 3 hints";
+
+	goTo(4, 34);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
+	cout << "R to shuffle the board";
+
+	goTo(4, 36);
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	cout << "ESC to return";
+	goTo(6, 37);
+	cout << "to main menu";
 }
 
-void game::initGame() {
+void Game::updateScore(int bonus_score) {
+	// print score
+	changeTextColor(colors.BG_main_bg, colors.TXT_blue);
+	goTo(12, 3);
+	cout << string(5, ' ');		// clear the previous score
+	score += bonus_score;
+	goTo(12, 3);
+	cout << score;
+
+	// print bonus score
+	goTo(12, 4);
+	cout << string(5, ' ');		// clear the previous bonus score
+	goTo(12, 4);
+	if (bonus_score < 0) {
+		changeTextColor(colors.BG_main_bg, colors.TEXT_RED);
+		cout << bonus_score;
+	}
+	else {
+		changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
+		cout << '+' << bonus_score;
+	}
+}
+
+void Game::updateRemainHint() {
+	if (hint_remaining <= 0) {
+		goTo(11, 6);
+		changeTextColor(colors.BG_main_bg, colors.TEXT_RED);
+		cout << hint_remaining;
+		goTo(5, 7);
+		cout << "No more hint available";
+	}
+	else {
+		goTo(11, 6);
+		changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
+		cout << hint_remaining;
+	}
+}
+
+void Game::inputName(int x, int y) {
+	name = "";
+	int c;
+	drawBox(x, y, 32, 3);
+	goTo(x + 1, y + 1);
+	// int cur_x = x;
+	// c = _getch();
+	// while (c == K_ENTER) {
+	// 	c = _getch();
+	// }
+	// while (c != K_ENTER) {
+	// 	if (name.length() < 30 && 32 <= c && c <= 126) {	// valid ASCII character
+	// 		cout << char(c);
+	// 		name += char(c);
+	// 		cur_x++;
+	// 		continue;
+	// 	}
+	// 	if (c == K_BACKSPACE && name.length() > 0) {
+	// 		goTo(cur_x, y + 1);
+	// 		cout << ' ';
+	// 		cur_x--;
+	// 		goTo(cur_x, y + 1);
+	// 		name.pop_back();
+	// 		continue;
+	// 	}
+	// 	c = _getch();
+	// }
+	getline(cin, name);
+	name = name.substr();
+}
+
+void Game::initGame() {
 	system("cls");
 	score = 0;
 	game_board->initBoard();
 	displayGameInfo();
+	drawBox(30, 1, 141, 41);	// game board's box
+	game_board->displayBoard();
 }
 
-void game::gameLoop() {
-
+void Game::gameLoop() {
+	clock_t start_time;
 	int remaining_cell = board_height * board_width;
 	Coordinate cur1, cur2;	// cursor 1 and cursor 2, 
 	Input inp;
 	bool cur1_selected = false;
-	bool use_hint = false;
-	
-	game_board->displayBoard();
 
 	cur1 = cur2 = {1, 1};
 	game_board->highlightCursor(cur1);
 	
+	start_time = clock();
 	while (remaining_cell > 0) {
 		inp = getInput();
 
@@ -124,11 +249,6 @@ void game::gameLoop() {
 
 		// escape
 		if (inp == Input::ESCAPE) break;
-
-		if (inp == Input::SHUFFLE){
-			shuffle(game_board);
-			continue;
-		}
 		
 		// move cursor
 		if (inp == Input::UP || inp == Input::LEFT || inp == Input::DOWN || inp == Input::RIGHT) {
@@ -143,10 +263,11 @@ void game::gameLoop() {
 				moveCursor(cur2, inp);
 				game_board->highlightCursor(cur2);
 			}
+			continue;
 		}
 
 		// select cell
-		else if (inp == Input::ENTER) {
+		if (inp == Input::ENTER) {
 
 			// select cell 1
 			if (!cur1_selected) {
@@ -175,17 +296,20 @@ void game::gameLoop() {
 				}
 				cur1 = cur2;
 				cur1_selected = false;
-				use_hint = false;
+				hint_used = false;
+				shuffled = false;
 			}
+			continue;
 		}
 
 		// show hint
-		else if (inp == Input::HINT) {
-			// temporary
-			if (!use_hint) {
+		if (inp == Input::HINT) {
+			if (!hint_used && hint_remaining > 0) {
+				hint_remaining -= 1;
+				updateRemainHint();
 				updateScore(-100);
 				showHint();
-				use_hint = true;
+				hint_used = true;
 				if (!cur1_selected) {
 					game_board->highlightCursor(cur1);
 				}
@@ -194,39 +318,91 @@ void game::gameLoop() {
 					game_board->highlightCursor(cur2);
 				}
 			}
+			continue;
+		}
+
+		// shuffle board
+		if (inp == Input::SHUFFLE){
+			if (!shuffled) {
+				game_board->unhighlightCell(cur1);
+				game_board->unhighlightCell(cur2);
+				cur1 = cur2 = {1, 1};
+				cur1_selected = false;
+				updateScore(-200);
+				shuffleBoard();
+				game_board->animateShuffle();
+				shuffled = true;
+				game_board->highlightCursor(cur1);
+			}
+			continue;
 		}
 	}
+	play_time.convert((clock() - start_time) / CLOCKS_PER_SEC);
 	game_board->unhighlightCell(cur1);
 }
 
-void game::gameFinished() {
-	// temporary
-	goTo(50, 15);
-	cout << "Your score is: " << score;
-	goTo(50, 16);
-	cout << "Press any key to go back";
+void Game::gameFinished() {
+	// show info and wait for user
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	goTo(30 + (141 - (game_board->bg_info).length()) / 2, 38);
+	cout << game_board->bg_info;
+	goTo(89, 39);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
+	cout << "Press Enter to continue";
+	while(getInput() != Input::ENTER);
+	
+	// clear screen
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	for (int i = 0; i < 39; i++) {
+		goTo(31, 2 + i);
+		cout << string(139, ' ');
+	}
+
+	goTo(93, 15);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_YELLOW);
+	cout << "Congratulation";
+
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	goTo(90, 18);
+	cout << "Your score is: ";
+	changeTextColor(colors.BG_main_bg, colors.TXT_blue);
+	cout << score;
+
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	goTo(90, 19);
+	cout << "Your time is: ";
+	changeTextColor(colors.BG_main_bg, colors.TXT_blue);
+	play_time.displayTime();
+
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	goTo(77, 21);
+	cout << "Please input your name (maximum 30 characters)";
+	goTo(88, 22);
+	cout << "Press Enter when finished";
+	inputName(84, 23);
+	
+	goTo(73, 26);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
+	cout << "Your score is saved. Press ESC to go back to main menu";
 	getInput();
 	system("cls");
 }
 
-void game::shuffle(board* game_board){
+void Game::shuffleBoard(){
 	srand(time(NULL));
 
-	for (int n = 0; n < game_board->height * game_board->width; n++){
-		int i = rand() % game_board->height + 1;
-		int j = rand() % game_board->width + 1;
+	for (int n = 0; n < board_height * board_width; n++){
+		int i = rand() % board_height + 1;
+		int j = rand() % board_width + 1;
 
-		int k = rand() % game_board->height + 1;
-		int l = rand() % game_board->width + 1;
+		int k = rand() % board_height + 1;
+		int l = rand() % board_width + 1;
 
-		if (game_board->letter_board[i][j] != '\0' && game_board->letter_board[k][l] != '\0'){
+		if (game_board->isValid({j, i}) && game_board->isValid({l, k})){
 			Coordinate pos1 = {j, i};
 			Coordinate pos2 = {l, k};
 
 			swap(game_board->letter_board[i][j], game_board->letter_board[k][l]);
-			game_board->unhighlightCell(pos1);
-			game_board->unhighlightCell(pos2);
 		}
 	}
-
 }

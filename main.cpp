@@ -1,10 +1,12 @@
 #include "menu.h"
-#include "console.h"
+// #include "console.h"
 
 
 int main() {
+	Menu m;
+
 	setupConsole();
-	displayMainMenu();
+	m.startMenu();
 
 	return 0;
 }
