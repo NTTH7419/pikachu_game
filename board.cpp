@@ -23,24 +23,15 @@ void Board::initBoard() {
 		if (i == ceil(height / 2.0) && height % 2 == 0) i++;
         for (int j = 1; j <= width; j++){
             if (i == ceil(height / 2.0) && j == 1 && height % 2 != 0) j = ceil(width / 2.0) + 1;
-			// cout << j << endl;
+
             int n = remaining_char.size();
-            // cout << n << endl;
+
             int index = rand() % n;
             letter_board[i][j] = remaining_char[index];
-            // remaining_char.pop_back();
             remaining_char.erase(remaining_char.begin() + index);
         }
-		// cout << endl;
     }
 
-	// for (int i = 1; i <= height; i++){
-	// 	for (int j = 0; j <= width; j++){
-	// 		letter_board[i][j] = 'A';
-	// 	}
-	// }
-
-	// delete[] count;
 }
 
 void Board::loadBackground(int difficulty) {
@@ -71,7 +62,7 @@ bool Board::isInBoard(Coordinate p){
 void Board::printBoard(){
     for (int i = 0; i < height + 2; i++){
         for (int j = 0; j < width + 2; j++){
-            cout << letter_board[i][j] << " ";
+            cout << getLetter({j, i}) << " ";
         }
         cout << endl;
     }
@@ -80,7 +71,7 @@ void Board::printBoard(){
 bool Board::isBoardEmpty(){
     for (int i = 1; i < height + 1; i++){
         for (int j = 1; j < width + 1; j++){
-            if (letter_board[i][j] != 0) return 0;
+            if (getLetter({j, i}) != 0) return 0;
         }
     }
     return 1;
@@ -124,20 +115,9 @@ bool Board::bfs(Coordinate start, Coordinate end, vector<Coordinate> &path){
         int cur_point_turn = q.front().turn_cnt;
         q.pop();
 
-        // cout << cur_point.x << " " << cur_point.y << endl;
-
         if (cur_point == end){
             paths.push(cur_path);
             path = cur_path;
-            // while(!paths.empty()){
-            //     vector<Coordinate> path = paths.front(); paths.pop();
-            //     cout << "path length: " << path.size() << endl;
-            //     for (int i = 0; i < path.size(); i++){
-            //         cout << path[i].x << " " << path[i].y << endl;
-            //     }
-            // }
-
-            // cout << "hello world" << endl;
             return 1;
         }
 
@@ -147,11 +127,10 @@ bool Board::bfs(Coordinate start, Coordinate end, vector<Coordinate> &path){
             Direction next_dir = (Direction)i;   
             short next_point_turn = cur_point_turn;
 
-            // cout << next_point.x << " " << next_point.y << endl;
             if (
                 0 <= next_point.y && next_point.y < height + 2 &&
                 0 <= next_point.x && next_point.x < width + 2 &&
-                (letter_board[next_point.y][next_point.x] == '\0' || next_point == end) &&
+                (getLetter({next_point.x, next_point.y}) == '#' || next_point == end) &&
                 !isVisited(next_point, cur_path)
             ){
 
@@ -168,21 +147,7 @@ bool Board::bfs(Coordinate start, Coordinate end, vector<Coordinate> &path){
             }
         }
 
-    }
-
-    // cout << paths.size() << endl;
-
-
-    // while(!paths.empty()){
-    //     vector<Coordinate> path = paths.front(); paths.pop();
-    //     cout << "path length: " << path.size() << endl;
-    //     for (int i = 0; i < path.size(); i++){
-    //         cout << path[i].x << " " << path[i].y << endl;
-    //     }
-    // }
-
-
-    // if (paths.size() != 0) return 1;
+	}
 
     return 0;
 }
@@ -197,7 +162,7 @@ void Board::highlightCell(Coordinate pos, string bg_color, string text_color = c
 		}
 		goTo(x_offset + cell_width * pos.x + cell_width / 2,
 			 y_offset + cell_height * pos.y + cell_height / 2);
-			cout << letter_board[pos.y][pos.x];
+			cout << getLetter(pos);
 	}
 	else {		// empty cell, draw background
 		changeTextColor(bg_color, colors.TXT_main_text);
@@ -239,7 +204,7 @@ char Board::getLetter(Coordinate pos) {
 }
 
 bool Board::isValid(Coordinate pos) {
-	return (getLetter(pos) != 0);
+	return (getLetter(pos) != '#');
 }
 
 void Board::displayLetter() {
@@ -248,7 +213,7 @@ void Board::displayLetter() {
 		for (int j = 1; j <= width; j++) {
 			goTo(x_offset + j * cell_width + cell_width / 2,
 				 y_offset + i * cell_height + cell_height / 2);	// offset + cell pos + letter pos in cell
-			cout << letter_board[i][j];
+			cout << getLetter({j, i});
 			Sleep(500 / (height * width));
 		}
 	}
@@ -297,9 +262,8 @@ void Board::displayBoard() {
 
 
 void Board::removeCell(Coordinate pos) {
-	if (!isInBoard(pos)) return;
 
-	letter_board[pos.y][pos.x] = 0;
+	letter_board[pos.y][pos.x] = '#';
 
 	// remove the letter
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
@@ -308,10 +272,10 @@ void Board::removeCell(Coordinate pos) {
 	cout << background[pos.y * cell_height + cell_height / 2][pos.x * cell_width + cell_width / 2];
 
 	bool left, right, top, bottom; // to check if exist/ empty
-	left = !letter_board[pos.y][pos.x - 1];
-	right = !letter_board[pos.y][pos.x + 1];
-	top = !letter_board[pos.y - 1][pos.x];
-	bottom = !letter_board[pos.y + 1][pos.x];
+	left = isValid({pos.x - 1, pos.y });
+	right = isValid({pos.x + 1, pos.y});
+	top = isValid({pos.x, pos.y - 1});
+	bottom = isValid({pos.x, pos.y + 1});
 
 	if (left) {		// check left side
 		for (int i = 1; i < cell_height; i++) {
@@ -518,5 +482,13 @@ void Board::animateShuffle() {
 		for (int j = 1; j <= height; j++) {
 			unhighlightCell({i, j});
 		}
+	}
+}
+
+void Board::shift(Coordinate pos){
+	for (int j = pos.x; j <= width; j++){
+		letter_board[pos.y][j] = getLetter({j + 1, pos.y});
+		
+		unhighlightCell({j, pos.y});
 	}
 }

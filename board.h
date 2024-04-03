@@ -72,6 +72,107 @@ struct Coordinate{
 };
 
 
+struct Node{
+    int data;
+    Node* next;
+};
+
+
+struct List{
+    Node* pHead = NULL;
+    Node* pTail = NULL;
+
+    void addHead(int data){
+        Node* pCur = new Node;
+        pCur->data = data;
+        pCur->next = pHead;
+        pHead = pCur;
+        if (pHead->next == NULL) pTail = pHead;
+    }
+
+    void printList(){
+        Node* pCur = pHead;
+
+        while(pCur){
+            cout << pCur->data << " ";
+            pCur = pCur->next;
+        }
+        cout << endl;
+    }
+
+    void remove(int index){
+        Node* pPrev = NULL;
+        Node* pTemp = pHead;
+        while(index--){
+            pPrev = pTemp;
+            pTemp = pTemp->next;
+        }
+        pTemp->data = 0;
+
+        if (pPrev) pPrev->next = pTemp->next;
+
+        else
+            pHead = pTemp->next;
+
+        if (pTemp->next){
+            pTail->next = pTemp;
+        }
+        
+        pTemp->next = NULL;
+    }
+    
+
+    int& operator[](int index){
+        Node* pCur = pHead;
+
+        while(index--){
+            pCur = pCur->next;
+        }
+
+        return pCur->data;
+    }
+};
+
+
+struct Node2D{
+    List data;
+    Node2D* next;
+};
+
+
+struct List2D{
+    Node2D* pHead = NULL;
+    Node2D* pTail = NULL;
+
+    void addHead(List data){
+        Node2D* pCur = new Node2D;
+        pCur->data = data;
+        pCur->next = pHead;
+        pHead = pCur;
+        if (pHead->next == NULL) pTail = pHead;
+    }
+
+    void printList(){
+        Node2D* pCur = pHead;
+
+        while(pCur){
+            pCur->data.printList();
+            pCur = pCur->next;
+        }
+        cout << endl;
+    }
+
+    List& operator[](int index){
+        Node2D* pCur = pHead;
+
+        while(index--){
+            pCur = pCur->next;
+        }
+
+        return pCur->data;
+    }
+};
+
 struct Board{
     //* board
 
@@ -79,6 +180,8 @@ struct Board{
     int height;
     int width;
     int distinct_letter;
+
+    List2D list_board;
 
     string* background;
     string bg_info;
@@ -111,7 +214,13 @@ struct Board{
 
         letter_board = new char*[height + 2];
         for (int i = 0; i < height + 2; i++)
-            letter_board[i] = new char[width + 2] {'\0'};
+            letter_board[i] = new char[width + 2];
+
+        for (int i = 0; i < height + 2; i++){
+            for (int j = 0; j < width + 2; j++){
+                letter_board[i][j] = '#';
+            }
+        }
 
         background = new string[(height + 2) * cell_height + 1];
         loadBackground(difficulty);
@@ -130,6 +239,9 @@ struct Board{
 	bool isInBoard(Coordinate p);
 	void printBoard();
 	bool isBoardEmpty();
+
+    void initListBoard();
+    void shuffleListBoard();
 
     bool isVisited(Coordinate point, vector<Coordinate> path);
     bool bfs(Coordinate start, Coordinate end, vector<Coordinate> &path);
@@ -151,4 +263,5 @@ struct Board{
     queue<Coordinate> drawPath(vector<Coordinate> path);
     void deletePath(queue<Coordinate> drawn_pixels);
     void animateShuffle();
+    void shift(Coordinate pos);
 };

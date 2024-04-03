@@ -289,6 +289,16 @@ void Game::gameLoop() {
 				// matching
 				if (matchCell(cur1, cur2)) {
 					remaining_cell -= 2;
+					if (cur1.x < cur2.x){
+						game_board->shift(cur2);
+						game_board->shift(cur1);
+					}
+
+					else{
+						game_board->shift(cur1);
+						game_board->shift(cur2);
+					}
+
 					updateScore(50);
 				}
 				else {
@@ -340,7 +350,7 @@ void Game::gameLoop() {
 	play_time.convert((clock() - start_time) / CLOCKS_PER_SEC);
 	game_board->unhighlightCell(cur1);
 }
-
+	
 void Game::gameFinished() {
 	// show info and wait for user
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
