@@ -40,8 +40,8 @@ struct Game {
 		delete game_board;
 	}
 	void initGame();
-	void gameLoop();
-	void gameFinished();
+	bool gameLoop();		// return 1 if player finished, 0 if player escape
+	void gameFinished(bool isFinished);
 
 	void displayGameInfo();
 	void moveCursor(Coordinate &cur, Input inp);

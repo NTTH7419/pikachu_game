@@ -411,6 +411,9 @@ https://stackoverflow.com/a/66393514
 SET CONSOLE TITLE
 https://stackoverflow.com/a/13219228
 
+DISABLE MOUSE INPUT
+https://stackoverflow.com/questions/46567248/how-to-disable-user-selection-in-windows-console
+
 GET PLAY TIME
 https://stackoverflow.com/questions/876901/calculating-execution-time-in-c
 

@@ -1,10 +1,12 @@
 #pragma once
+#pragma comment(lib, "Winmm.lib")
 
 #include <iostream>
-#include <windows.h>
-#include <conio.h>
+#include <windows.h>	// for console configuaration and playing sound
+#include <conio.h>		// for get input
 #include <string>
 #include <fstream>
+#include <mmsystem.h>
 
 using namespace std;
 
@@ -13,6 +15,14 @@ using namespace std;
 
 #define CONSOLE_WIDTH 172
 #define CONSOLE_HEIGHT 42
+
+#define SFX_CORRECT 1
+#define SFX_WRONG 2
+#define SFX_SELECT 31
+#define SFX_SELECT_SYNC 32
+#define SFX_MOVE_CURSOR 4
+#define SFX_WIN 5
+#define SFX_START_GAME 6
 
 enum Input{
 	INVALID 	= -2,
@@ -125,10 +135,11 @@ void changeTextColor(string bg_color, string text_color);
 void setTextBold();
 void setTextNormal();
 void drawBox(int x, int y, int width, int height);
+void playSFX(int sound);
 
 void setCursorAppearance(bool show);
 void disableMaximizeConsole();
 void setConsoleWindow();
-void hideScrollBar();
+void disableMouseInput();
 void setConsoleTitle();
 void setupConsole();

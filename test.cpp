@@ -1,7 +1,8 @@
+// #pragma comment(lib, "Winmm.lib")
 // #include <iostream>
 // #include <windows.h>
 // #include <conio.h>
-
+// #include <mmsystem.h>
 // using namespace std;
 
 // // // bool isCharAtPosition(SHORT x, SHORT y, char& character) {
@@ -15,6 +16,11 @@
 // // //     return false;
 // // // }
 
+// void playSound(int sound) {
+// 	PlaySoundA("move_cursor.mp3", NULL, SND_FILENAME | SND_ASYNC);
+// 	// mciSendStringA("play \"move_cursor.mp3\"", NULL, 0, NULL);
+// }
+
 // int main() {
 // 	// for (int i = 62; i < 120; i++) {
 // 	// 	cout << char(i);
@@ -26,7 +32,8 @@
 
 
 //     // ...
-// 	cout << int(_getch());
+// 	playSound(1);
+// 	_getch();
 
 // 	return 0;
 // }

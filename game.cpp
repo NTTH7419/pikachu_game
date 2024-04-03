@@ -1,6 +1,7 @@
 #include "game.h"
 
 void Game::moveCursor(Coordinate &cur, Input inp) {
+	playSFX(SFX_MOVE_CURSOR);
 	if (inp == Input::UP) {
 		cur.y -= 1;
 		if (cur.y <= 0) cur.y = board_height;	// if cursor moves outside of board, it moves to the other side
@@ -34,7 +35,7 @@ bool Game::matchCell(Coordinate cur1, Coordinate cur2) {
 		
 		drawn_pixels = game_board->drawPath(path);
 		game_board->highlightCorrectPair(cur1, cur2);
-		Sleep(500);
+		playSFX(SFX_CORRECT);
 
 		game_board->deletePath(drawn_pixels);
 		
@@ -46,7 +47,8 @@ bool Game::matchCell(Coordinate cur1, Coordinate cur2) {
 	}
 	else {
 		game_board->highlightWrongPair(cur1, cur2);
-		Sleep(500);
+		playSFX(SFX_WRONG);
+		Sleep(200);
 		game_board->unhighlightCell(cur1);
 		game_board->highlightCursor(cur2);
 		return false;
@@ -79,14 +81,14 @@ void Game::displayGameInfo() {
 	drawBox(1, 19, 29, 23);
 
 	// score
-	goTo(5, 3);
+	goTo(5, 4);
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	cout << "Score: ";
 	changeTextColor(colors.BG_main_bg, colors.TXT_blue);
 	cout << score;
 
 	// hint
-	goTo(5, 6);
+	goTo(5, 7);
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	cout << "Hint: ";
 	changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
@@ -132,7 +134,7 @@ void Game::displayGameInfo() {
 	changeTextColor(colors.BG_main_bg, colors.TEXT_ORANGE);
 	cout << "ENTER to select, ";
 	goTo(6, 29);
-	cout << "select again to cancel match";
+	cout << "select again to cancel";
 
 	goTo(4, 31);
 	changeTextColor(colors.BG_main_bg, colors.TEXT_PURPLE);
@@ -154,16 +156,16 @@ void Game::displayGameInfo() {
 void Game::updateScore(int bonus_score) {
 	// print score
 	changeTextColor(colors.BG_main_bg, colors.TXT_blue);
-	goTo(12, 3);
+	goTo(12, 4);
 	cout << string(5, ' ');		// clear the previous score
 	score += bonus_score;
-	goTo(12, 3);
+	goTo(12, 4);
 	cout << score;
 
 	// print bonus score
-	goTo(12, 4);
+	goTo(12, 5);
 	cout << string(5, ' ');		// clear the previous bonus score
-	goTo(12, 4);
+	goTo(12, 5);
 	if (bonus_score < 0) {
 		changeTextColor(colors.BG_main_bg, colors.TEXT_RED);
 		cout << bonus_score;
@@ -176,14 +178,14 @@ void Game::updateScore(int bonus_score) {
 
 void Game::updateRemainHint() {
 	if (hint_remaining <= 0) {
-		goTo(11, 6);
+		goTo(11,7);
 		changeTextColor(colors.BG_main_bg, colors.TEXT_RED);
 		cout << hint_remaining;
-		goTo(5, 7);
+		goTo(5, 8);
 		cout << "No more hint available";
 	}
 	else {
-		goTo(11, 6);
+		goTo(11, 7);
 		changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
 		cout << hint_remaining;
 	}
@@ -231,11 +233,12 @@ void Game::initGame() {
 
 	displayGameInfo();
 	drawBox(30, 1, 141, 41);	// game board's box
+	Sleep(300);
 	game_board->displayBoard();
 	// game_board->printList();
 }
 
-void Game::gameLoop() {
+bool Game::gameLoop() {
 	clock_t start_time;
 	int remaining_cell = board_height * board_width;
 	Coordinate cur1, cur2;	// cursor 1 and cursor 2, 
@@ -253,7 +256,9 @@ void Game::gameLoop() {
 		if (inp == Input::INVALID) continue;
 
 		// escape
-		if (inp == Input::ESCAPE) break;
+		if (inp == Input::ESCAPE) {
+			return 0;
+		}
 		
 		// move cursor
 		if (inp == Input::UP || inp == Input::LEFT || inp == Input::DOWN || inp == Input::RIGHT) {
@@ -325,13 +330,6 @@ void Game::gameLoop() {
 				updateScore(-100);
 				showHint();
 				hint_used = true;
-				if (!cur1_selected) {
-					game_board->highlightCursor(cur1);
-				}
-				else {
-					game_board->highlightSelected(cur1);
-					game_board->highlightCursor(cur2);
-				}
 			}
 			continue;
 		}
@@ -354,15 +352,21 @@ void Game::gameLoop() {
 	}
 	play_time.convert((clock() - start_time) / CLOCKS_PER_SEC);
 	game_board->unhighlightCell(cur1);
+	return 1;
 }
-	
-void Game::gameFinished() {
+
+void Game::gameFinished(bool isFinished) {
+	if (!isFinished) {		// not finish 
+		system("cls");
+		return;
+	}
 	// show info and wait for user
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	goTo(30 + (141 - (game_board->bg_info).length()) / 2, 38);
 	cout << game_board->bg_info;
 	goTo(89, 39);
 	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
+	playSFX(SFX_WIN);
 	cout << "Press Enter to continue";
 	while(getInput() != Input::ENTER);
 	

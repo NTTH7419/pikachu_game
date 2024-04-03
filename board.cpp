@@ -224,6 +224,7 @@ void Board::displayLetter() {
 }
 
 void Board::displayBoard() {
+	playSFX(SFX_START_GAME);
 
 	//* print the game board
 	changeTextColor(colors.BG_main_bg, colors.TXT_cell_border);

@@ -59,6 +59,23 @@ void drawBox(int x, int y, int width, int height) {
 	}
 }
 
+void playSFX(int sound) {
+	if (sound == SFX_MOVE_CURSOR)
+		PlaySoundA("move_cursor.wav", NULL, SND_FILENAME | SND_ASYNC);
+	else if (sound == SFX_CORRECT)
+		PlaySoundA("correct.wav", NULL, SND_FILENAME | SND_SYNC);
+	else if (sound == SFX_WRONG)
+		PlaySoundA("wrong.wav", NULL, SND_FILENAME | SND_SYNC);
+	else if (sound == SFX_SELECT)
+		PlaySoundA("select.wav", NULL, SND_FILENAME | SND_ASYNC);
+	else if (sound == SFX_SELECT_SYNC)
+		PlaySoundA("select.wav", NULL, SND_FILENAME | SND_SYNC);
+	else if (sound == SFX_WIN)
+		PlaySoundA("win.wav", NULL, SND_FILENAME | SND_ASYNC);
+	else if (sound == SFX_START_GAME)
+		PlaySoundA("game_start.wav", NULL, SND_FILENAME | SND_ASYNC);
+}
+
 void setCursorAppearance(bool show) {
 	if (show)
 		cout << "\33[?25h";	// show cursor
@@ -68,9 +85,7 @@ void setCursorAppearance(bool show) {
 
 // set console size, need Adminstrator
 void setConsoleWindow() {
-    RECT r;
-    GetWindowRect(console, &r); //stores the console's current dimensions
-    MoveWindow(console, r.left, r.top, WINDOW_WIDTH, WINDOW_HEIGHT, TRUE);
+    MoveWindow(console, 100, 50, WINDOW_WIDTH, WINDOW_HEIGHT, TRUE);
 }
 
 void disableMaximizeConsole() {
@@ -79,9 +94,11 @@ void disableMaximizeConsole() {
 	SetWindowLong(console, GWL_STYLE, style);
 }
 
-void hideScrollBar() {
-	// ShowScrollBar(console, SB_BOTH, 1);
-	EnableScrollBar(console, SB_BOTH, ESB_DISABLE_BOTH);
+void disableMouseInput() {
+	DWORD prev_mode;
+	HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+	GetConsoleMode(hInput, &prev_mode); 
+	SetConsoleMode(hInput, ENABLE_EXTENDED_FLAGS | (prev_mode & ~ENABLE_QUICK_EDIT_MODE));
 }
 
 void setConsoleTitle() {
@@ -147,7 +164,7 @@ Colors::Colors() {
 
 void setupConsole() {
 	setConsoleWindow();
-	hideScrollBar();
+	disableMouseInput();
 	disableMaximizeConsole();
 	setConsoleTitle();
 	setCursorAppearance(false);	// hide console cursor

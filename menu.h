@@ -48,9 +48,9 @@ struct Options_list {
 
 struct Menu {
 	int title_x = (CONSOLE_WIDTH - 76) / 2;
-	int title_y = 0;
+	int title_y = 5;
 	int list_x = (CONSOLE_WIDTH - Button::width) / 2;
-	int list_y = 9 + 2;
+	int list_y = 17;
 	string* title;
 	int title_height;
 	int title_width;
@@ -59,14 +59,17 @@ struct Menu {
 	const string main_menu_options[5] {"Play", "Highscores", "Infos", "Settings", "Quit Game"};
 	const string difficuty_options[4] {"Easy", "Medium", "Hard", "Back"};
 	const string quit_confirm[2] {"Yes", "No"};
+	const string setting_options[2] {"Theme", "Sound"};
 
 	const string welcome = "Welcome to Pokemon++, a matching game on console";
 	const string difficulty_instruction = "Choose difficulty:";
 	const string quit_instruction = "Quit game?";
+	const string setting_instruction = "Set your preferences, please restart game for this to take effect";
 
 	Options_list main_menu = Options_list(welcome, main_menu_options, 5, list_x, list_y);
 	Options_list difficulty_menu = Options_list(difficulty_instruction, difficuty_options, 4, list_x, list_y);
 	Options_list quit_menu = Options_list(quit_instruction, quit_confirm, 2, list_x, list_y);
+	Options_list setting_menu = Options_list(setting_instruction, setting_options, 2, list_x, list_y);
 
 	Menu() {
 		loadTitle();
@@ -81,4 +84,5 @@ struct Menu {
 
 	void startGame(int difficulty);
 	void showInfo();
+	void showSetting();
 };

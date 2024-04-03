@@ -116,6 +116,7 @@ string Options_list::selectOption() {
 		if (inp == Input::INVALID) continue;
 
 		if (inp == Input::UP) {
+			playSFX(SFX_MOVE_CURSOR);
 			button_arr[cur].unhighlightButton();
 			cur -= 1;
 			cur = (cur + number_of_buttons) % number_of_buttons;
@@ -123,6 +124,7 @@ string Options_list::selectOption() {
 		}
 
 		else if (inp == Input::DOWN) {
+			playSFX(SFX_MOVE_CURSOR);
 			button_arr[cur].unhighlightButton();
 			cur += 1;
 			cur = (cur + number_of_buttons) % number_of_buttons;
@@ -130,6 +132,7 @@ string Options_list::selectOption() {
 		}
 
 		else if (inp == Input::ENTER) {
+			playSFX(SFX_SELECT);
 			removeOptionsList();
 			return button_arr[cur].option;
 		}
@@ -139,12 +142,11 @@ string Options_list::selectOption() {
 void Menu::startGame(int difficulty) {
 	Game g = Game(difficulty);
 	g.initGame();
-	g.gameLoop();
-	g.gameFinished();
+	g.gameFinished(g.gameLoop());
 }
 
 void Menu::showInfo() {
-	goTo(25, 15);
+	goTo(25, 19);
 	cout << "Welcome to ";
 	changeTextColor(colors.BG_main_bg, colors.TEXT_YELLOW);
 	cout << "Pikachu++";
@@ -156,7 +158,7 @@ void Menu::showInfo() {
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	cout << ".";
 
-	goTo(25, 17);
+	goTo(25, 21);
 	cout << "This project is made by ";
 	changeTextColor(colors.BG_main_bg, colors.TEXT_RED);
 	cout << "Phung Ngoc Tuan";
@@ -175,7 +177,7 @@ void Menu::showInfo() {
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	cout << ".";
 
-	goTo(25, 19);
+	goTo(25, 23);
 	cout << "Special thanks to ";
 	changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
 	cout << "Nguyen Hoang Minh Tam";
@@ -190,18 +192,18 @@ void Menu::showInfo() {
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	cout << " for discussions during game development.";
 
-	goTo(70, 23);
+	goTo(70, 27);
 	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
 	cout << "Press ESC to go back to the main menu";
 	while(getInput() != Input::ESCAPE);		// wait for player to press ESC
 	
-	goTo(25, 15);
-	cout << string(150, ' ');
-	goTo(25, 17);
-	cout << string(150, ' ');
 	goTo(25, 19);
 	cout << string(150, ' ');
-	goTo(70, 23);
+	goTo(25, 21);
+	cout << string(150, ' ');
+	goTo(25, 23);
+	cout << string(150, ' ');
+	goTo(70, 27);
 	cout << string(150, ' ');
 }
 
@@ -274,4 +276,8 @@ void Menu::startMenu() {
 			else if (player_selection == "No") continue;
 		}
 	}
+}
+
+void Menu::showSetting() {
+	;
 }
