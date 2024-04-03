@@ -28,15 +28,18 @@ bool Game::matchCell(Coordinate cur1, Coordinate cur2) {
 
 	if (cur1 != cur2 &&
 		game_board->getLetter(cur1) == game_board->getLetter(cur2) &&
-		game_board->bfs(cur1, cur2, path)) {
+		game_board->bfs(cur1, cur2, path)
+		) {
 
+		
 		drawn_pixels = game_board->drawPath(path);
 		game_board->highlightCorrectPair(cur1, cur2);
 		Sleep(500);
 
 		game_board->deletePath(drawn_pixels);
-		game_board->removeCell(cur1);
-		game_board->removeCell(cur2);
+		
+		game_board->removeCell(cur1.x < cur2.x ? cur2 : cur1);
+		game_board->removeCell(cur1.x < cur2.x ? cur1 : cur2);
 		game_board->unhighlightCell(cur1);
 		game_board->highlightCursor(cur2);
 		return true;
@@ -53,9 +56,8 @@ bool Game::matchCell(Coordinate cur1, Coordinate cur2) {
 void Game::showHint() {
 	for (int i = 1; i <= board_height; i++){
 		for (int j = 1; j <= board_width; j++){
-			if (game_board->isValid({j, i}) != '\0'){
+			if (game_board->isValid({j, i})){
 				char piece = game_board->getLetter({j, i});
-				int k = i;
 				for (int k = i; k <= board_height; k++){
 					for (int l = 0; l <= board_width; l++){
 						vector<Coordinate> temp;
@@ -69,10 +71,7 @@ void Game::showHint() {
 				} 
 			}
 		}
-	}
-
-
-	
+	}	
 }
 
 void Game::displayGameInfo() {
@@ -224,10 +223,16 @@ void Game::inputName(int x, int y) {
 void Game::initGame() {
 	system("cls");
 	score = 0;
-	game_board->initBoard();
+
+	if(game_board->isArray)
+		game_board->initBoard();
+	else
+		game_board->initListBoard();
+
 	displayGameInfo();
 	drawBox(30, 1, 141, 41);	// game board's box
 	game_board->displayBoard();
+	// game_board->printList();
 }
 
 void Game::gameLoop() {
@@ -289,15 +294,15 @@ void Game::gameLoop() {
 				// matching
 				if (matchCell(cur1, cur2)) {
 					remaining_cell -= 2;
-					if (cur1.x < cur2.x){
-						game_board->shift(cur2);
-						game_board->shift(cur1);
-					}
+					// if (cur1.x < cur2.x){
+					// 	game_board->shift(cur2);
+					// 	game_board->shift(cur1);
+					// }
 
-					else{
-						game_board->shift(cur1);
-						game_board->shift(cur2);
-					}
+					// else{
+					// 	game_board->shift(cur1);
+					// 	game_board->shift(cur2);
+					// }
 
 					updateScore(50);
 				}
@@ -401,6 +406,7 @@ void Game::gameFinished() {
 void Game::shuffleBoard(){
 	srand(time(NULL));
 
+
 	for (int n = 0; n < board_height * board_width; n++){
 		int i = rand() % board_height + 1;
 		int j = rand() % board_width + 1;
@@ -409,10 +415,11 @@ void Game::shuffleBoard(){
 		int l = rand() % board_width + 1;
 
 		if (game_board->isValid({j, i}) && game_board->isValid({l, k})){
-			Coordinate pos1 = {j, i};
-			Coordinate pos2 = {l, k};
 
-			swap(game_board->letter_board[i][j], game_board->letter_board[k][l]);
+			if(game_board->isArray)
+				swap(game_board->letter_board[i][j], game_board->letter_board[k][l]);
+			else
+				swap(game_board->list_board[i][j], game_board->list_board[k][l]);
 		}
 	}
 }

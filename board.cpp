@@ -200,7 +200,10 @@ void Board::highlightHintPair(Coordinate pos1, Coordinate pos2) {
 }
 
 char Board::getLetter(Coordinate pos) {
-	return letter_board[pos.y][pos.x];
+	if (isArray)
+		return letter_board[pos.y][pos.x];
+	
+	return list_board[pos.y][pos.x];
 }
 
 bool Board::isValid(Coordinate pos) {
@@ -262,8 +265,15 @@ void Board::displayBoard() {
 
 
 void Board::removeCell(Coordinate pos) {
-
-	letter_board[pos.y][pos.x] = '#';
+	if (isArray){
+		letter_board[pos.y][pos.x] = '#';
+	}
+	else{
+		list_board[pos.y].remove(pos.x);
+		for (int j = pos.x; j <= width; j++){
+			unhighlightCell({j, pos.y});
+		}
+	}
 
 	// remove the letter
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
@@ -271,11 +281,12 @@ void Board::removeCell(Coordinate pos) {
 		 y_offset + pos.y * cell_height + cell_height / 2);
 	cout << background[pos.y * cell_height + cell_height / 2][pos.x * cell_width + cell_width / 2];
 
-	bool left, right, top, bottom; // to check if exist/ empty
-	left = isValid({pos.x - 1, pos.y });
-	right = isValid({pos.x + 1, pos.y});
-	top = isValid({pos.x, pos.y - 1});
-	bottom = isValid({pos.x, pos.y + 1});
+	//check if the cell does not exist
+	bool left, right, top, bottom;
+	left = !isValid({pos.x - 1, pos.y });
+	right = !isValid({pos.x + 1, pos.y});
+	top = !isValid({pos.x, pos.y - 1});
+	bottom = !isValid({pos.x, pos.y + 1});
 
 	if (left) {		// check left side
 		for (int i = 1; i < cell_height; i++) {
@@ -304,6 +315,8 @@ void Board::removeCell(Coordinate pos) {
 			 y_offset + cell_height * pos.y + cell_height);
 		cout << background[cell_height * pos.y + cell_height].substr(cell_width * pos.x + 1, cell_width - 1);
 	}
+
+
 }
 
 queue<Coordinate> Board::drawPath(vector<Coordinate> path) {
@@ -492,3 +505,35 @@ void Board::shift(Coordinate pos){
 		unhighlightCell({j, pos.y});
 	}
 }
+
+void Board::initListBoard(){
+	srand(time(NULL) + rand());
+	vector<char> remaining_char;
+
+	for (int i = 1; i <= height; i++){
+		for (int j = 1; j <= width; j++){
+			if (i <= height/2){
+				char c = rand() % distinct_letter + 65;
+				remaining_char.push_back(c);
+				list_board[i][j] = c;
+			}
+
+			else{
+				int n = remaining_char.size();
+				int index = rand() % n;
+				list_board[i][j] = remaining_char[index];
+				remaining_char.erase(remaining_char.begin() + index);
+			}
+		}
+	}
+}
+
+void Board::printList(){
+	for (int i = 0; i < height + 2; i++){
+		for (int j = 0; j < width + 2; j++){
+			cout << list_board[i][j] << " ";
+		}
+		cout << endl;
+	}
+}
+

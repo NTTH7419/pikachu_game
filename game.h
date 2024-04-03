@@ -28,7 +28,7 @@ struct Game {
 
 	bool hint_used = false;
 	bool shuffled = false;
-	int hint_remaining = 3;
+	int hint_remaining = 1e9;
 
 	Game(int difficulty) {
 		game_board = new Board(difficulty);

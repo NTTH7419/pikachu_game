@@ -73,7 +73,7 @@ struct Coordinate{
 
 
 struct Node{
-    int data;
+    char data;
     Node* next;
 };
 
@@ -82,7 +82,7 @@ struct List{
     Node* pHead = NULL;
     Node* pTail = NULL;
 
-    void addHead(int data){
+    void addHead(char data){
         Node* pCur = new Node;
         pCur->data = data;
         pCur->next = pHead;
@@ -107,22 +107,20 @@ struct List{
             pPrev = pTemp;
             pTemp = pTemp->next;
         }
-        pTemp->data = 0;
+        pTemp->data = '#';
 
         if (pPrev) pPrev->next = pTemp->next;
 
-        else
-            pHead = pTemp->next;
+        else pHead = pTemp->next;
 
-        if (pTemp->next){
-            pTail->next = pTemp;
-        }
+        if (pTemp->next) pTail->next = pTemp;
         
         pTemp->next = NULL;
+        pTail = pTemp;
     }
     
 
-    int& operator[](int index){
+    char& operator[](int index){
         Node* pCur = pHead;
 
         while(index--){
@@ -180,8 +178,8 @@ struct Board{
     int height;
     int width;
     int distinct_letter;
-
     List2D list_board;
+    bool isArray;
 
     string* background;
     string bg_info;
@@ -198,29 +196,48 @@ struct Board{
 			height = 6;
 			width = 8;
 			distinct_letter = 15;
+            isArray = true;
 		}
 		else if (difficulty == MEDIUM) {
 			height = 8;
 			width = 10;
 			distinct_letter = 20;
+            isArray = true;
 		}
 		else if (difficulty == HARD) {
 			height = 8;
 			width = 12;
 			distinct_letter = 26;
+            isArray = false;
 		}
         x_offset = 30 + (141 - (cell_width * (width + 2) + 1)) / 2;
         y_offset = 1 + (41 - (cell_height * (height + 2) + 1)) / 2;
 
-        letter_board = new char*[height + 2];
-        for (int i = 0; i < height + 2; i++)
-            letter_board[i] = new char[width + 2];
+        if (isArray){
+            letter_board = new char*[height + 2];
+            for (int i = 0; i < height + 2; i++)
+                letter_board[i] = new char[width + 2];
 
-        for (int i = 0; i < height + 2; i++){
-            for (int j = 0; j < width + 2; j++){
-                letter_board[i][j] = '#';
+            for (int i = 0; i < height + 2; i++){
+                for (int j = 0; j < width + 2; j++){
+                    letter_board[i][j] = '#';
+                }
             }
         }
+
+        else{
+            List temp;
+            for (int i = 0; i < height + 2; i++){
+                list_board.addHead(temp);
+            }
+
+            for (int i = 0; i < height + 2; i++){
+                for (int j = 0; j < width + 2; j++){
+                    list_board[i].addHead('#');
+                }
+            }
+        }
+
 
         background = new string[(height + 2) * cell_height + 1];
         loadBackground(difficulty);
@@ -241,7 +258,7 @@ struct Board{
 	bool isBoardEmpty();
 
     void initListBoard();
-    void shuffleListBoard();
+    void printList();
 
     bool isVisited(Coordinate point, vector<Coordinate> path);
     bool bfs(Coordinate start, Coordinate end, vector<Coordinate> &path);
