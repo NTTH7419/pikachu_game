@@ -246,9 +246,8 @@ void Menu::startMenu() {
 
 		else if (player_selection == "Highscores") {
 			player_selection = "";
-			system("cls");
-			cout << "Highscores";
-			break;
+			Highscores::displayHighscores();
+			continue;			
 		}
 
 		else if (player_selection == "Infos") {

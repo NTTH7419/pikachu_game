@@ -18,10 +18,13 @@ using namespace std;
 #define MEDIUM 2
 #define HARD 3
 
+
+//Defining the direction for path finding
 enum Direction{
     NORTH = 0, EAST = 1, WEST = 2, SOUTH = 3, NEUTRAL = 4
 };
 
+//defining a vector to draw the path later on
 struct Vector {
     int x;
     int y;
@@ -35,6 +38,8 @@ struct Vector {
     }
 };
 
+
+//defining a struct Coordinate for convenience
 struct Coordinate{
     int x;
     int y;
@@ -72,6 +77,7 @@ struct Coordinate{
 };
 
 
+//Defining the linked list for shifting
 struct Node{
     char data;
     Node* next;
@@ -100,6 +106,7 @@ struct List{
         cout << endl;
     }
 
+    //TODO: moving the removed cell into the last of the list
     void remove(int index){
         Node* pPrev = NULL;
         Node* pTemp = pHead;
@@ -129,9 +136,19 @@ struct List{
 
         return pCur->data;
     }
+
+    void del(){
+        while(pHead){
+            Node* pCur = pHead;
+            pHead = pHead->next;
+            delete pCur;
+        }
+        pTail = NULL;
+    }
 };
 
 
+//defining the 2D list for shifting
 struct Node2D{
     List data;
     Node2D* next;
@@ -169,15 +186,26 @@ struct List2D{
 
         return pCur->data;
     }
+
+    void del(){
+        while(pHead){
+            Node2D* pCur = pHead;
+            pHead = pHead->next;
+            delete pCur;
+        }
+        pTail = pHead;
+    }
 };
 
+
+//defining the board struct of the game
 struct Board{
     //* board
  
     int height;
     int width;
-    int distinct_letter;
-    bool is_array;
+    int distinct_letter; //number of distinct letters that can be picked 
+    bool is_array; //array implementation or linked list implementation
 
     char** letter_board;    // array board
     List2D list_board;      // linked list board
@@ -191,6 +219,7 @@ struct Board{
     int x_offset;
     int y_offset;
 
+    //TODO: setting the difficulty
     Board(int difficulty){
         if (difficulty == EASY) {
 			height = 6;
@@ -210,6 +239,8 @@ struct Board{
 			distinct_letter = 26;
             is_array = false;
 		}
+
+        //setting the offset of the board (centerize)
         x_offset = 30 + (141 - (cell_width * (width + 2) + 1)) / 2;
         y_offset = 1 + (41 - (cell_height * (height + 2) + 1)) / 2;
 
@@ -251,39 +282,88 @@ struct Board{
             delete[] letter_board;
         }
         else {
-            // deallocate linked list here
+            for (int i = 0; i < height + 2; i++){
+                list_board[i].del();
+            }
+            list_board.del();
         }
         delete[] background;
+
+
     }
 
+    //TODO: Initializing the 2D array board
 	void initBoard();
+
+    //TODO: Loading the corresponding background
     void loadBackground(int difficulty);
+
+    //TODO: Check if a point p is in the board
 	bool isInBoard(Coordinate p);
+
+    //TODO: debug function, print the array board into console
 	void printBoard();
+
+    //TODO: check if there is no more cells on the board
 	bool isBoardEmpty();
 
+    //TODO: initializing the linked list board
     void initListBoard();
+
+    //TODO: debug function, print the linked list board into console
     void printList();
 
+    //TODO: check if a point has been visited before
     bool isVisited(Coordinate point, vector<Coordinate> path);
+
+    //TODO: path finding function using bfs
     bool bfs(Coordinate start, Coordinate end, vector<Coordinate> &path);
 
+    //TODO: highlight the cell at position pos with color specified below
     void highlightCell(Coordinate pos, string bg_color, string text_color);
+
+    //TODO: unhighlight the cell at position pos
     void unhighlightCell(Coordinate pos);
+
+    //TODO: highlighting the cursor at pos
     void highlightCursor(Coordinate pos);
+
+    //TODO: highlight the selected cell at pos
     void highlightSelected(Coordinate pos);
+
+    //TODO: highlight the correct pair with green color
     void highlightCorrectPair(Coordinate pos1, Coordinate pos2);
+
+    //TODO: highlight the wrong pair with red color
     void highlightWrongPair(Coordinate pos1, Coordinate pos2);
+
+    //TODO: highlight the hinted pair with color purple
     void highlightHintPair(Coordinate pos1, Coordinate pos2);
 
+    //TODO: get the letter of the array board or the linked list board
     char getLetter(Coordinate pos);
+
+    //TODO: check if the letter is not 
     bool isValid(Coordinate pos);
 
+    //TODO: display the letter in the terminal
     void displayLetter();
+
+    //TODO: display the board in the terminal
     void displayBoard();
+
+    //TODO: remove a cell at position pos
     void removeCell(Coordinate pos);
+
+    //TODO: draw the path between the two valid cells
     queue<Coordinate> drawPath(vector<Coordinate> path);
+
+    //TODO: delete the path after displaying
     void deletePath(queue<Coordinate> drawn_pixels);
+
+    //TODO: animating the shuffle effect
     void animateShuffle();
+
+    //TODO: shift the board leftward
     void shift(Coordinate pos);
 };

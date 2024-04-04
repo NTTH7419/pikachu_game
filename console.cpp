@@ -3,6 +3,7 @@
 HWND console = GetConsoleWindow();
 bool is_dark_mode, is_sound_on;
 
+//TODO: getting the input from the player
 Input getInput() {
 	char inp = _getch();
 	if (inp == K_ESC) return Input::ESCAPE;
@@ -16,6 +17,7 @@ Input getInput() {
 	return Input::INVALID;	// other input
 }
 
+
 void goTo(SHORT x, SHORT y) {
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     COORD Position;
@@ -26,10 +28,10 @@ void goTo(SHORT x, SHORT y) {
 }
 
 
-// change background and text color
 void changeTextColor(string bg_color, string text_color) {
 	cout << bg_color << text_color;
 }
+
 
 void drawBox(int x, int y, int width, int height) {
 	for (int i = 0; i < height; i++) {
@@ -52,6 +54,7 @@ void drawBox(int x, int y, int width, int height) {
 	}
 }
 
+
 char getCharAtPosition(SHORT x, SHORT y) {
 	char c;
     COORD xy = {0, 0};
@@ -64,14 +67,24 @@ char getCharAtPosition(SHORT x, SHORT y) {
     return ' ';
 }
 
+
 void playSFX(int sound) {
-	if(!is_sound_on) return;	// if sound off
+	if(!is_sound_on) {		// if sound off
+		if (sound == SFX_CORRECT || sound == SFX_WRONG) {
+			Sleep(400);
+		}
+		return;
+	}
 	if (sound == SFX_MOVE_CURSOR)
 		PlaySoundA("move_cursor.wav", NULL, SND_FILENAME | SND_ASYNC);
-	else if (sound == SFX_CORRECT)
+	else if (sound == SFX_CORRECT) {
 		PlaySoundA("correct.wav", NULL, SND_FILENAME | SND_SYNC);
-	else if (sound == SFX_WRONG)
+		Sleep(100);
+	}
+	else if (sound == SFX_WRONG) {
 		PlaySoundA("wrong.wav", NULL, SND_FILENAME | SND_SYNC);
+		Sleep(200);
+	}
 	else if (sound == SFX_SELECT)
 		PlaySoundA("select.wav", NULL, SND_FILENAME | SND_ASYNC);
 	else if (sound == SFX_WIN)
@@ -80,6 +93,8 @@ void playSFX(int sound) {
 		PlaySoundA("game_start.wav", NULL, SND_FILENAME | SND_ASYNC);
 }
 
+
+
 void setCursorAppearance(bool show) {
 	if (show)
 		cout << "\33[?25h";	// show cursor
@@ -87,7 +102,7 @@ void setCursorAppearance(bool show) {
 		cout << "\33[?25l";	// hide cursor
 }
 
-// set console size, need Adminstrator
+
 void setConsoleWindow() {
     MoveWindow(console, 100, 50, WINDOW_WIDTH, WINDOW_HEIGHT, TRUE);
 }

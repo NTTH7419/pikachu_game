@@ -1,17 +1,18 @@
 #include "board.h"
 
 
-
 void Board::initBoard() {
 	srand(time(0) + rand());
-	// int* count = new int[k] {0};
 
-	vector<char> remaining_char;
+	//A vector to store the selected characters
+	vector<char> selected_chars;
 
+
+	//Interate to the half of the board and assign random characters from k distinct characters
     for (int i = 1; i <= ceil(height / 2.0); i++){
         for (int j = 1; j <= width; j++){
             char temp = rand() % distinct_letter + 65;
-            remaining_char.push_back(temp);
+            selected_chars.push_back(temp);
             letter_board[i][j] = temp;
             if (i == ceil(height / 2.0) && j == ceil(width / 2.0) && height % 2 != 0){
 				break;            
@@ -19,21 +20,24 @@ void Board::initBoard() {
         }
     }
 
+
+	//Iterate through the other half of the board and randomly assign characters from selected chars
     for (int i = ceil(height / 2.0); i <= height; i++){
 		if (i == ceil(height / 2.0) && height % 2 == 0) i++;
         for (int j = 1; j <= width; j++){
             if (i == ceil(height / 2.0) && j == 1 && height % 2 != 0) j = ceil(width / 2.0) + 1;
 
-            int n = remaining_char.size();
+            int n = selected_chars.size();
 
             int index = rand() % n;
-            letter_board[i][j] = remaining_char[index];
-            remaining_char.erase(remaining_char.begin() + index);
+            letter_board[i][j] = selected_chars[index];
+            selected_chars.erase(selected_chars.begin() + index);
         }
     }
 
 }
 
+//load the background depends on the difficulty chosen
 void Board::loadBackground(int difficulty) {
 	ifstream fin;
 	if (difficulty == EASY) {
@@ -106,41 +110,47 @@ bool Board::bfs(Coordinate start, Coordinate end, vector<Coordinate> &path){
         {0, 1}     //down
     };
 
+	//push the first point into the queue
     q.push({{start}, NEUTRAL, 0});
 
     while(!q.empty()){
-        Coordinate cur_point = q.front().path.back();
-        vector<Coordinate> cur_path = q.front().path;
-        Direction cur_dir = q.front().cur_dir;
-        int cur_point_turn = q.front().turn_cnt;
+        Coordinate cur_point = q.front().path.back(); //getting current point
+        vector<Coordinate> cur_path = q.front().path; //getting the path leading up to the current point
+        Direction cur_dir = q.front().cur_dir; //getting the current direction
+        int cur_point_turn = q.front().turn_cnt; //getting the number of turns 
         q.pop();
 
+
+		//return the true and the path if the end point is reached
         if (cur_point == end){
             paths.push(cur_path);
             path = cur_path;
             return 1;
         }
 
+		//cheking all four neighboring points
         for (int i = 0; i < 4; i++){
-            Coordinate next_point = cur_point + direction[i];
-            vector<Coordinate> next_path = cur_path;
-            Direction next_dir = (Direction)i;   
-            short next_point_turn = cur_point_turn;
+            Coordinate next_point = cur_point + direction[i]; //getting the next point
+            vector<Coordinate> next_path = cur_path; //getting the path leading up to the next point
+            Direction next_dir = (Direction)i;   //getting the next direction
+            short next_point_turn = cur_point_turn; //getting the number of turns
 
             if (
-                0 <= next_point.y && next_point.y < height + 2 &&
+                0 <= next_point.y && next_point.y < height + 2 && //check if the next point is in the board
                 0 <= next_point.x && next_point.x < width + 2 &&
-                (getLetter({next_point.x, next_point.y}) == '#' || next_point == end) &&
-                !isVisited(next_point, cur_path)
+                (getLetter({next_point.x, next_point.y}) == '#' || next_point == end) && //check if it is valid to traverse (not a normal letter)
+                !isVisited(next_point, cur_path) //check if the next point has not been visited
             ){
-
+				//check if there is a change in direction
                 if (cur_dir != NEUTRAL && cur_dir != next_dir){
 
+					//if the number of turns is equal to two, skip this point
                     if (cur_point_turn == 2)
                         continue;
                     else
                         next_point_turn = cur_point_turn + 1;
                 }
+
 
                 next_path.push_back(next_point);
                 q.push({next_path, next_dir, next_point_turn});
@@ -148,18 +158,23 @@ bool Board::bfs(Coordinate start, Coordinate end, vector<Coordinate> &path){
         }
 
 	}
-
     return 0;
 }
+
+
 
 void Board::highlightCell(Coordinate pos, string bg_color, string text_color = colors.TXT_highlight_letter) {
 	if (isValid(pos)) {
 		changeTextColor(bg_color, text_color);
+
+		//highlight the cell
 		for (int i = 1; i < cell_height; i++) {
 			goTo(x_offset + cell_width * pos.x + 1,
 				 y_offset + cell_height * pos.y + i);
 			cout << string(cell_width - 1, ' ');
 		}
+
+		//print the letter
 		goTo(x_offset + cell_width * pos.x + cell_width / 2,
 			 y_offset + cell_height * pos.y + cell_height / 2);
 			cout << getLetter(pos);

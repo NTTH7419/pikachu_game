@@ -73,6 +73,7 @@ struct Menu {
 
 	Menu() {
 		loadTitle();
+		Highscores::loadHighscores();
 	}
 
 	~Menu() {

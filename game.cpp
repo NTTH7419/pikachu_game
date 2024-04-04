@@ -27,35 +27,40 @@ bool Game::matchCell(Coordinate cur1, Coordinate cur2) {
 	vector<Coordinate> path;
 	queue<Coordinate> drawn_pixels;
 
-	if (cur1 != cur2 &&
-		game_board->getLetter(cur1) == game_board->getLetter(cur2) &&
-		game_board->bfs(cur1, cur2, path)
+	
+	//correct pair highlighting and deleting
+	if (cur1 != cur2 &&		//check if the two coordinates are not the same
+		game_board->getLetter(cur1) == game_board->getLetter(cur2) && //check if they have the same representative letter
+		game_board->bfs(cur1, cur2, path) //check if there exists a valid path between the two cells
 		) {
 
-		
+		//draw the path
 		drawn_pixels = game_board->drawPath(path);
 		game_board->highlightCorrectPair(cur1, cur2);
 		playSFX(SFX_CORRECT);
 
 		game_board->deletePath(drawn_pixels);
 		
+		//delete the cell and shifting (right most element gets deleted first)
 		game_board->removeCell(cur1.x < cur2.x ? cur2 : cur1);
 		game_board->removeCell(cur1.x < cur2.x ? cur1 : cur2);
+
 		game_board->unhighlightCell(cur1);
 		game_board->highlightCursor(cur2);
 		return true;
 	}
+
+	//incorrect pair highlighting
 	else {
 		game_board->highlightWrongPair(cur1, cur2);
 		playSFX(SFX_WRONG);
-		Sleep(200);
 		game_board->unhighlightCell(cur1);
 		game_board->highlightCursor(cur2);
 		return false;
 	}
 }
 
-bool Game::findValidPairs(Coordinate &pos1, Coordinate &pos2) {
+bool Game::findValidPair(Coordinate &pos1, Coordinate &pos2) {
 	for (int i = 1; i <= board_height; i++){
 		for (int j = 1; j <= board_width; j++){
 			if (game_board->isValid({j, i})){
@@ -82,9 +87,7 @@ bool Game::findValidPairs(Coordinate &pos1, Coordinate &pos2) {
 void Game::showHint(){
 	Coordinate pos1;
 	Coordinate pos2;
-
-
-	if (findValidPairs(pos1, pos2)){
+	if (findValidPair(pos1, pos2)){
 		game_board->highlightHintPair(pos1, pos2);
 	}
 }
@@ -122,9 +125,9 @@ void Game::displayGameInfo() {
 	goTo(4, 15);
 	changeTextColor(colors.BG_main_bg, colors.TEXT_PURPLE);
 	cout << "Use hint -100 pts";
-	goTo(4, 16);
-	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
-	cout << "Use shuffle -200 pts";
+	// goTo(4, 16);
+	// changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
+	// cout << "Use shuffle -200 pts";
 
 	// play instruction
 	goTo(10, 20);
@@ -155,14 +158,14 @@ void Game::displayGameInfo() {
 	goTo(6, 32);
 	cout << "you have 3 hints";
 
-	goTo(4, 34);
-	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
-	cout << "R to shuffle the board";
+	// goTo(4, 34);
+	// changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
+	// cout << "R to shuffle the board";
 
-	goTo(4, 36);
+	goTo(4, 34);
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	cout << "ESC to return";
-	goTo(6, 37);
+	goTo(6, 35);
 	cout << "to main menu";
 }
 
@@ -246,7 +249,7 @@ bool Game::gameLoop() {
 		Coordinate pos1, pos2;
 
 		// shuffle board if there are no valid pairs
-		while (!findValidPairs(pos1, pos2)){
+		while (!findValidPair(pos1, pos2)){
 			game_board->unhighlightCell(cur1);
 			game_board->unhighlightCell(cur2);
 			cur1 = cur2 = {1, 1};
@@ -354,6 +357,7 @@ void Game::gameFinished(bool isFinished) {
 		system("cls");
 		return;
 	}
+
 	// show info and wait for user
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
 	goTo(30 + (141 - (game_board->bg_info).length()) / 2, 38);
@@ -394,6 +398,8 @@ void Game::gameFinished(bool isFinished) {
 	cout << "Press Enter when finished";
 	inputName(84, 23);
 	
+	Highscores::updateHighscores({name, score, play_time});
+
 	goTo(73, 26);
 	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
 	cout << "Your score is saved. Press ESC to go back to main menu";
@@ -419,5 +425,105 @@ void Game::shuffleBoard(){
 			else
 				swap(game_board->list_board[i][j], game_board->list_board[k][l]);
 		}
+	}
+}
+
+int Highscores::highscorers;
+vector<Record> Highscores::records;
+
+void Highscores::loadHighscores() {
+	Record temp;
+	string data;
+	ifstream fin("highscores.txt");
+	fin >> highscorers;
+	fin.ignore();
+	if (highscorers > 5) highscorers = 5;
+	for (int i = 0; i < highscorers; i++) {
+		getline(fin, data);
+		temp.fromCSV(data);
+		records.push_back(temp);
+	}
+	fin.close();
+}
+
+void Highscores::updateHighscores(Record record) {
+	bool isUpdated = false;
+
+	if ((record.score > records.end()->score) || 
+		((record.score == records.end()->score) && (record.play_time < records.end()->play_time))
+		)	{	// if score in top 5
+
+		ofstream fout("highscores.txt");
+		for (int i = 0; i < highscorers; i++) {
+			if ((record.score > records[i].score) || 
+				((record.score == records[i].score) && (record.play_time < records[i].play_time))
+				) {
+				records.insert(records.begin() + i, record);
+				isUpdated = true;
+				break;
+			}
+		}
+
+		if (!isUpdated && highscorers < 5) {
+			records.push_back(record);
+			highscorers++;
+		}
+
+		// remove top 6
+		if (highscorers > 5) {
+			records.pop_back();
+			highscorers--;
+		}
+		// print score again
+		fout << highscorers << endl;
+		for (int i = 0; i < highscorers; i++) {
+			fout << records[i].toCSV() << endl;
+		}
+		fout.close();
+	}
+}
+
+void Highscores::displayHighscores() {
+	goTo((CONSOLE_WIDTH - 10) / 2, 20);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_GREEN);
+	cout << "Highscores";
+	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	drawBox((CONSOLE_WIDTH - 70) / 2, 23, 70, 15);
+	goTo(52, 25);
+	cout << string(68, HORIZONTAL_EDGE);
+	changeTextColor(colors.BG_main_bg, colors.TXT_blue);
+	goTo(55, 24);
+	cout << "Rank";
+	goTo(65, 24);
+	cout << "Name";
+	goTo(100, 24);
+	cout << "Score";
+	goTo(110, 24);
+	cout << "Time";
+	for (int i = 0; i < highscorers; i++) {
+		if (i == 0) {
+			changeTextColor(colors.BG_main_bg, colors.TEXT_ORANGE);
+		}
+		else {
+			changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+		}
+		goTo(55, 26 + 2 * i);
+		cout << i + 1;
+		goTo(65, 26 + 2 * i);
+		cout << records[i].name;
+		goTo(100, 26 + 2 * i);
+		cout << records[i].score;
+		goTo(110, 26 + 2 * i);
+		records[i].play_time.displayTime();
+	}
+
+	goTo(70, 40);
+	changeTextColor(colors.BG_main_bg, colors.TEXT_PINK);
+	cout << "Press ESC to go back to the main menu";
+	while(getInput() != Input::ESCAPE);
+
+	for (int i = 20; i <= 40; i++) {
+		goTo(50, i);
+		cout << string(100, ' ');
 	}
 }

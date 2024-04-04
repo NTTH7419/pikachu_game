@@ -129,15 +129,36 @@ const char D_RIGHT_DOWN_CORNER 	= 201;		// ╔
 
 
 Input getInput();
+
+//TODO: moving the cursor to a desired position
 void goTo(SHORT x, SHORT y);
+
+//TODO: change the text color
 void changeTextColor(string bg_color, string text_color);
+
+//TODO: draw the box of an object on console
 void drawBox(int x, int y, int width, int height);
+
+//TODO: get the charactet at a position
 char getCharAtPosition(SHORT x, SHORT y);
+
+//TODO: play sound effect
 void playSFX(int sound);
 
+//TODO: hide/show the cursor
 void setCursorAppearance(bool show);
+
+//TODO: disabling windows terminal resizing
 void disableMaximizeConsole();
+
+//TODO: resizing and positioning the window console
 void setConsoleWindow();
+
+//TODO: disable the mouse input from the player
 void disableMouseInput();
+
+//TODO: set the console title
 void setConsoleTitle();
+
+//TODO: setting up the windows terminal
 void setupConsole();
