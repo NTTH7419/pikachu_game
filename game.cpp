@@ -55,7 +55,7 @@ bool Game::matchCell(Coordinate cur1, Coordinate cur2) {
 	}
 }
 
-void Game::showHint() {
+bool Game::findValidPairs(Coordinate &pos1, Coordinate &pos2) {
 	for (int i = 1; i <= board_height; i++){
 		for (int j = 1; j <= board_width; j++){
 			if (game_board->isValid({j, i})){
@@ -64,16 +64,29 @@ void Game::showHint() {
 					for (int l = 0; l <= board_width; l++){
 						vector<Coordinate> temp;
 						if (game_board->getLetter({l, k}) == piece && !(i == k && j == l) && game_board->bfs({j, i}, {l, k}, temp)){
-							Coordinate pos1 = {j, i};
-							Coordinate pos2 = {l, k};
-							game_board->highlightHintPair(pos1, pos2);
-							return;
+							pos1 = {j, i};
+							pos2 = {l, k};
+							return 1;
 						}
 					}
 				} 
 			}
 		}
 	}	
+
+	pos1 = {-1, -1};
+	pos2 = {-1, -1};
+	return 0;
+}
+
+void Game::showHint(){
+	Coordinate pos1;
+	Coordinate pos2;
+
+
+	if (findValidPairs(pos1, pos2)){
+		game_board->highlightHintPair(pos1, pos2);
+	}
 }
 
 void Game::displayGameInfo() {
@@ -230,6 +243,22 @@ bool Game::gameLoop() {
 	
 	start_time = clock();
 	while (remaining_cell > 0) {
+		Coordinate pos1, pos2;
+
+		// shuffle board if there are no valid pairs
+		while (!findValidPairs(pos1, pos2)){
+			game_board->unhighlightCell(cur1);
+			game_board->unhighlightCell(cur2);
+			cur1 = cur2 = {1, 1};
+			cur1_selected = false;
+			updateScore(-200);
+			shuffleBoard();
+			game_board->animateShuffle();
+			hint_used = false;
+			game_board->highlightCursor(cur1);
+		
+		}
+
 		inp = getInput();
 
 		// invalid input
@@ -297,7 +326,6 @@ bool Game::gameLoop() {
 				cur1 = cur2;
 				cur1_selected = false;
 				hint_used = false;
-				shuffled = false;
 			}
 			continue;
 		}
@@ -314,22 +342,7 @@ bool Game::gameLoop() {
 			continue;
 		}
 
-		// shuffle board
-		if (inp == Input::SHUFFLE){
-			if (!shuffled) {
-				game_board->unhighlightCell(cur1);
-				game_board->unhighlightCell(cur2);
-				cur1 = cur2 = {1, 1};
-				cur1_selected = false;
-				updateScore(-200);
-				shuffleBoard();
-				game_board->animateShuffle();
-				shuffled = true;
-				hint_used = false;
-				game_board->highlightCursor(cur1);
-			}
-			continue;
-		}
+		
 	}
 	play_time.convert((clock() - start_time) / CLOCKS_PER_SEC);
 	game_board->unhighlightCell(cur1);

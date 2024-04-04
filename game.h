@@ -27,7 +27,6 @@ struct Game {
 	string name;
 
 	bool hint_used = false;
-	bool shuffled = false;
 	int hint_remaining = 1e9;
 
 	Game(int difficulty) {
@@ -47,6 +46,7 @@ struct Game {
 	void moveCursor(Coordinate &cur, Input inp);
 	bool matchCell(Coordinate cur1, Coordinate cur2);
 	void showHint();
+	bool findValidPairs(Coordinate &pos1, Coordinate &pos2);
 	void updateRemainHint();
 	void updateScore(int bonus_score);
 	void shuffleBoard();
