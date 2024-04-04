@@ -196,37 +196,17 @@ void Game::inputName(int x, int y) {
 	int c;
 	drawBox(x, y, 32, 3);
 	goTo(x + 1, y + 1);
-	// int cur_x = x;
-	// c = _getch();
-	// while (c == K_ENTER) {
-	// 	c = _getch();
-	// }
-	// while (c != K_ENTER) {
-	// 	if (name.length() < 30 && 32 <= c && c <= 126) {	// valid ASCII character
-	// 		cout << char(c);
-	// 		name += char(c);
-	// 		cur_x++;
-	// 		continue;
-	// 	}
-	// 	if (c == K_BACKSPACE && name.length() > 0) {
-	// 		goTo(cur_x, y + 1);
-	// 		cout << ' ';
-	// 		cur_x--;
-	// 		goTo(cur_x, y + 1);
-	// 		name.pop_back();
-	// 		continue;
-	// 	}
-	// 	c = _getch();
-	// }
+	setCursorAppearance(1);
 	getline(cin, name);
-	name = name.substr();
+	setCursorAppearance(0);
+	name = name.substr(0, 30);
 }
 
 void Game::initGame() {
 	system("cls");
 	score = 0;
 
-	if(game_board->isArray)
+	if(game_board->is_array)
 		game_board->initBoard();
 	else
 		game_board->initListBoard();
@@ -345,6 +325,7 @@ bool Game::gameLoop() {
 				shuffleBoard();
 				game_board->animateShuffle();
 				shuffled = true;
+				hint_used = false;
 				game_board->highlightCursor(cur1);
 			}
 			continue;
@@ -420,7 +401,7 @@ void Game::shuffleBoard(){
 
 		if (game_board->isValid({j, i}) && game_board->isValid({l, k})){
 
-			if(game_board->isArray)
+			if(game_board->is_array)
 				swap(game_board->letter_board[i][j], game_board->letter_board[k][l]);
 			else
 				swap(game_board->list_board[i][j], game_board->list_board[k][l]);

@@ -5,17 +5,6 @@
 // #include <mmsystem.h>
 // using namespace std;
 
-// // // bool isCharAtPosition(SHORT x, SHORT y, char& character) {
-// // //     COORD xy = { 0, 0 };
-// // //     CHAR_INFO ci;
-// // //     SMALL_RECT rect = { x, y, x, y };
-// // //     if (ReadConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE), &ci, {1, 1}, xy, &rect)) {
-// // //         character = ci.Char.AsciiChar;
-// // //         return true;
-// // //     }
-// // //     return false;
-// // // }
-
 // void playSound(int sound) {
 // 	PlaySoundA("move_cursor.mp3", NULL, SND_FILENAME | SND_ASYNC);
 // 	// mciSendStringA("play \"move_cursor.mp3\"", NULL, 0, NULL);

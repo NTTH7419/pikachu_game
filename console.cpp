@@ -1,6 +1,7 @@
 #include "console.h"
 
 HWND console = GetConsoleWindow();
+bool is_dark_mode, is_sound_on;
 
 Input getInput() {
 	char inp = _getch();
@@ -30,14 +31,6 @@ void changeTextColor(string bg_color, string text_color) {
 	cout << bg_color << text_color;
 }
 
-void setTextBold() {
-	cout << "\33[1m";
-}
-
-void setTextNormal() {
-	cout << "\33[0m";
-}
-
 void drawBox(int x, int y, int width, int height) {
 	for (int i = 0; i < height; i++) {
 		goTo(x, y + i);
@@ -59,7 +52,20 @@ void drawBox(int x, int y, int width, int height) {
 	}
 }
 
+char getCharAtPosition(SHORT x, SHORT y) {
+	char c;
+    COORD xy = {0, 0};
+    CHAR_INFO ci;
+    SMALL_RECT rect = { x, y, x, y };
+    if (ReadConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE), &ci, {1, 1}, xy, &rect)) {
+        c = ci.Char.AsciiChar;
+        return c;
+    }
+    return ' ';
+}
+
 void playSFX(int sound) {
+	if(!is_sound_on) return;	// if sound off
 	if (sound == SFX_MOVE_CURSOR)
 		PlaySoundA("move_cursor.wav", NULL, SND_FILENAME | SND_ASYNC);
 	else if (sound == SFX_CORRECT)
@@ -68,8 +74,6 @@ void playSFX(int sound) {
 		PlaySoundA("wrong.wav", NULL, SND_FILENAME | SND_SYNC);
 	else if (sound == SFX_SELECT)
 		PlaySoundA("select.wav", NULL, SND_FILENAME | SND_ASYNC);
-	else if (sound == SFX_SELECT_SYNC)
-		PlaySoundA("select.wav", NULL, SND_FILENAME | SND_SYNC);
 	else if (sound == SFX_WIN)
 		PlaySoundA("win.wav", NULL, SND_FILENAME | SND_ASYNC);
 	else if (sound == SFX_START_GAME)
@@ -163,6 +167,10 @@ Colors::Colors() {
 }
 
 void setupConsole() {
+	ifstream fin("settings.txt");
+	fin >> is_dark_mode >> is_sound_on;
+	fin.close();
+
 	setConsoleWindow();
 	disableMouseInput();
 	disableMaximizeConsole();

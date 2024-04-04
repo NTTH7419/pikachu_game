@@ -5,12 +5,12 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
-#include <cstring>
 #include <math.h>
 #include <time.h>
 #include <random>
 #include <vector>
 #include <queue>
+#include <utility>
 
 using namespace std;
 
@@ -173,14 +173,14 @@ struct List2D{
 
 struct Board{
     //* board
-
-    char** letter_board;
+ 
     int height;
     int width;
     int distinct_letter;
-    List2D list_board;
-    bool isArray;
+    bool is_array;
 
+    char** letter_board;    // array board
+    List2D list_board;      // linked list board
     string* background;
     string bg_info;
 
@@ -196,24 +196,24 @@ struct Board{
 			height = 6;
 			width = 8;
 			distinct_letter = 15;
-            isArray = true;
+            is_array = true;
 		}
 		else if (difficulty == MEDIUM) {
 			height = 8;
 			width = 10;
 			distinct_letter = 20;
-            isArray = true;
+            is_array = true;
 		}
 		else if (difficulty == HARD) {
 			height = 8;
 			width = 12;
 			distinct_letter = 26;
-            isArray = false;
+            is_array = false;
 		}
         x_offset = 30 + (141 - (cell_width * (width + 2) + 1)) / 2;
         y_offset = 1 + (41 - (cell_height * (height + 2) + 1)) / 2;
 
-        if (isArray){
+        if (is_array){   // allocate array
             letter_board = new char*[height + 2];
             for (int i = 0; i < height + 2; i++)
                 letter_board[i] = new char[width + 2];
@@ -225,7 +225,7 @@ struct Board{
             }
         }
 
-        else{
+        else{       // allocate linked list
             List temp;
             for (int i = 0; i < height + 2; i++){
                 list_board.addHead(temp);
@@ -244,10 +244,15 @@ struct Board{
     }
 
     ~Board(){
-        for (int i = 0; i < height + 2; i++)
-            delete[] letter_board[i];
+        if (is_array) {
+            for (int i = 0; i < height + 2; i++)
+                delete[] letter_board[i];
 
-        delete[] letter_board;
+            delete[] letter_board;
+        }
+        else {
+            // deallocate linked list here
+        }
         delete[] background;
     }
 

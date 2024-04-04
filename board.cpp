@@ -200,7 +200,7 @@ void Board::highlightHintPair(Coordinate pos1, Coordinate pos2) {
 }
 
 char Board::getLetter(Coordinate pos) {
-	if (isArray)
+	if (is_array)
 		return letter_board[pos.y][pos.x];
 	
 	return list_board[pos.y][pos.x];
@@ -212,11 +212,11 @@ bool Board::isValid(Coordinate pos) {
 
 void Board::displayLetter() {
 	changeTextColor(colors.BG_main_bg, colors.TXT_letter);
-	for (int i = 1; i <= height; i++) {
-		for (int j = 1; j <= width; j++) {
-			goTo(x_offset + j * cell_width + cell_width / 2,
-				 y_offset + i * cell_height + cell_height / 2);	// offset + cell pos + letter pos in cell
-			cout << getLetter({j, i});
+	for (int i = 1; i <= width; i++) {
+		for (int j = 1; j <= height; j++) {
+			goTo(x_offset + i * cell_width + cell_width / 2,
+				 y_offset + j * cell_height + cell_height / 2);	// offset + cell pos + letter pos in cell
+			cout << getLetter({i, j});
 			Sleep(500 / (height * width));
 		}
 	}
@@ -266,23 +266,24 @@ void Board::displayBoard() {
 
 
 void Board::removeCell(Coordinate pos) {
-	if (isArray){
-		letter_board[pos.y][pos.x] = '#';
-	}
-	else{
-		list_board[pos.y].remove(pos.x);
-		for (int j = pos.x; j <= width; j++){
-			unhighlightCell({j, pos.y});
+	Coordinate cur = pos;
+	if (!is_array) {	// go to the last cell in the row
+		for (int i = cur.x + 1; i <= width; i++) {
+			if (!isValid({i, pos.y})) break;
+			pos.x = i;
 		}
 	}
 
-	// remove the letter
+	// remove the letter and draw background
 	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
-	goTo(x_offset + pos.x * cell_width + cell_width / 2,
-		 y_offset + pos.y * cell_height + cell_height / 2);
-	cout << background[pos.y * cell_height + cell_height / 2][pos.x * cell_width + cell_width / 2];
+	for (int i = 1; i < cell_height; i++) {
+		goTo(x_offset + pos.x * cell_width + 1,
+			 y_offset + pos.y * cell_height + i);
+		cout << background[pos.y * cell_height + i].substr(pos.x * cell_width + 1, cell_width - 1);
+	}
 
-	//check if the cell does not exist
+
+	//check if the adjation cell exist
 	bool left, right, top, bottom;
 	left = !isValid({pos.x - 1, pos.y });
 	right = !isValid({pos.x + 1, pos.y});
@@ -317,7 +318,21 @@ void Board::removeCell(Coordinate pos) {
 		cout << background[cell_height * pos.y + cell_height].substr(cell_width * pos.x + 1, cell_width - 1);
 	}
 
+	if (is_array){
+		letter_board[pos.y][cur.x] = '#';
+	}
+	else{
+		list_board[pos.y].remove(cur.x);
 
+		// print the board again
+		changeTextColor(colors.BG_main_bg, colors.TXT_letter);
+		for (int i = cur.x; i <= width; i++) {
+			if (!isValid({i, pos.y})) break;
+			goTo(x_offset + i * cell_width + cell_width / 2,
+				 y_offset + pos.y * cell_height + cell_height / 2);
+			cout << getLetter({i, pos.y});
+		}
+	}
 }
 
 queue<Coordinate> Board::drawPath(vector<Coordinate> path) {

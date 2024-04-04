@@ -59,7 +59,7 @@ struct Menu {
 	const string main_menu_options[5] {"Play", "Highscores", "Infos", "Settings", "Quit Game"};
 	const string difficuty_options[4] {"Easy", "Medium", "Hard", "Back"};
 	const string quit_confirm[2] {"Yes", "No"};
-	const string setting_options[2] {"Theme", "Sound"};
+	const string setting_options[3] {"Theme", "Sound", "Back"};
 
 	const string welcome = "Welcome to Pokemon++, a matching game on console";
 	const string difficulty_instruction = "Choose difficulty:";
@@ -69,7 +69,7 @@ struct Menu {
 	Options_list main_menu = Options_list(welcome, main_menu_options, 5, list_x, list_y);
 	Options_list difficulty_menu = Options_list(difficulty_instruction, difficuty_options, 4, list_x, list_y);
 	Options_list quit_menu = Options_list(quit_instruction, quit_confirm, 2, list_x, list_y);
-	Options_list setting_menu = Options_list(setting_instruction, setting_options, 2, list_x, list_y);
+	Options_list setting_menu = Options_list(setting_instruction, setting_options, 3, list_x, list_y);
 
 	Menu() {
 		loadTitle();

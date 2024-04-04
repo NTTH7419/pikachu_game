@@ -258,10 +258,9 @@ void Menu::startMenu() {
 		}
 
 		else if (player_selection == "Settings") {
+			showSetting();
 			player_selection = "";
-			system("cls");
-			cout << "Settings";
-			break;
+			continue;
 		}
 
 		else if (player_selection == "Quit Game") {
@@ -279,5 +278,39 @@ void Menu::startMenu() {
 }
 
 void Menu::showSetting() {
-	;
+
+	const string theme_options[2] {"Light", "Dark"};
+	Options_list theme_menu = Options_list("Set theme", theme_options, 2, list_x, list_y);
+	const string sound_options[2] {"On", "Off"};
+	Options_list sound_menu = Options_list("Set sound on/ off", sound_options, 2, list_x, list_y);
+
+	bool is_dark_mode, is_sound_on;
+	ifstream fin("settings.txt");
+	fin >> is_dark_mode >> is_sound_on;
+	fin.close();
+
+	player_selection = setting_menu.selectOption();
+	while (player_selection != "Back") {
+		if (player_selection == "Theme") {
+			player_selection = theme_menu.selectOption();
+			if (player_selection == "Light")
+				is_dark_mode = 0;
+			else if (player_selection == "Dark")
+				is_dark_mode = 1;
+			player_selection == "";
+		}
+		else if (player_selection == "Sound") {
+			player_selection = sound_menu.selectOption();
+			if (player_selection == "On")
+				is_sound_on = 1;
+			else if (player_selection == "Off")
+				is_sound_on = 0;
+			player_selection == "";
+		}
+		player_selection = setting_menu.selectOption();
+	}
+
+	ofstream fout("settings.txt");
+	fout << is_dark_mode << " " << is_sound_on;
+	fout.close();
 }

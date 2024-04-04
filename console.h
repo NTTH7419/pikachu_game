@@ -18,8 +18,7 @@ using namespace std;
 
 #define SFX_CORRECT 1
 #define SFX_WRONG 2
-#define SFX_SELECT 31
-#define SFX_SELECT_SYNC 32
+#define SFX_SELECT 3
 #define SFX_MOVE_CURSOR 4
 #define SFX_WIN 5
 #define SFX_START_GAME 6
@@ -132,9 +131,8 @@ const char D_RIGHT_DOWN_CORNER 	= 201;		// ╔
 Input getInput();
 void goTo(SHORT x, SHORT y);
 void changeTextColor(string bg_color, string text_color);
-void setTextBold();
-void setTextNormal();
 void drawBox(int x, int y, int width, int height);
+char getCharAtPosition(SHORT x, SHORT y);
 void playSFX(int sound);
 
 void setCursorAppearance(bool show);
