@@ -1,5 +1,24 @@
 #include "console.h"
 
+string Colors::TXT_main_text;
+string Colors::TXT_cell_border;
+string Colors::TXT_letter;
+string Colors::TXT_highlight_letter;
+string Colors::TXT_path;
+string Colors::TXT_button_drawing;
+string Colors::TXT_button_text;
+string Colors::TXT_button_highlight_text;
+string Colors::TXT_blue;
+string Colors::BG_main_bg;
+string Colors::BG_cell_cursor;
+string Colors::BG_cell_selected;
+string Colors::BG_cell_correct;
+string Colors::BG_cell_wrong;
+string Colors::BG_cell_hint;
+string Colors::BG_button_selecting;
+string Colors::BG_title;
+
+
 HWND console = GetConsoleWindow();
 bool is_dark_mode, is_sound_on;
 
@@ -71,26 +90,39 @@ char getCharAtPosition(SHORT x, SHORT y) {
 void playSFX(int sound) {
 	if(!is_sound_on) {		// if sound off
 		if (sound == SFX_CORRECT || sound == SFX_WRONG) {
-			Sleep(400);
+			Sleep(300);
 		}
 		return;
 	}
-	if (sound == SFX_MOVE_CURSOR)
-		PlaySoundA("move_cursor.wav", NULL, SND_FILENAME | SND_ASYNC);
-	else if (sound == SFX_CORRECT) {
-		PlaySoundA("correct.wav", NULL, SND_FILENAME | SND_SYNC);
-		Sleep(100);
+	switch (sound)	{
+		case SFX_MOVE_CURSOR:
+			PlaySoundA("sfx\\move_cursor.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		
+		case SFX_CORRECT:
+			PlaySoundA("sfx\\correct.wav", NULL, SND_FILENAME | SND_SYNC);
+			break;
+		
+		case SFX_WRONG:
+			PlaySoundA("sfx\\wrong.wav", NULL, SND_FILENAME | SND_SYNC);
+			Sleep(100);
+			break;
+
+		case SFX_SELECT:
+			PlaySoundA("sfx\\select.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+
+		case SFX_WIN:
+			PlaySoundA("sfx\\win.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+
+		case SFX_START_GAME:
+			PlaySoundA("sfx\\game_start.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+
+		default:
+			break;
 	}
-	else if (sound == SFX_WRONG) {
-		PlaySoundA("wrong.wav", NULL, SND_FILENAME | SND_SYNC);
-		Sleep(200);
-	}
-	else if (sound == SFX_SELECT)
-		PlaySoundA("select.wav", NULL, SND_FILENAME | SND_ASYNC);
-	else if (sound == SFX_WIN)
-		PlaySoundA("win.wav", NULL, SND_FILENAME | SND_ASYNC);
-	else if (sound == SFX_START_GAME)
-		PlaySoundA("game_start.wav", NULL, SND_FILENAME | SND_ASYNC);
 }
 
 
@@ -124,7 +156,7 @@ void setConsoleTitle() {
 	SetConsoleTitleA("Pikachu++");
 }
 
-Colors::Colors() {
+void setColors() {
 	bool is_dark_mode;
 	ifstream fin("settings.txt");
 	fin >> is_dark_mode;
@@ -132,52 +164,50 @@ Colors::Colors() {
 	if (is_dark_mode) {		// dark mode
 		system("color 0f");	// black background
 		// text color
-		TXT_main_text 			= TEXT_WHITE;
-		TXT_cell_border 		= TEXT_MAGENTA;
-		TXT_letter 				= TEXT_YELLOW;
-		TXT_highlight_letter 	= TEXT_WHITE;
-		TXT_path 				= TEXT_GREEN;
-		TXT_button_drawing 		= TEXT_WHITE;
-		TXT_button_text			= TEXT_PURPLE;
-		TXT_button_highlight_text = TEXT_WHITE;
-		TXT_red 				= TEXT_RED;
-		TXT_blue 				= TEXT_LIGHT_BLUE;
+		Colors::TXT_main_text 			= TEXT_WHITE;
+		Colors::TXT_cell_border 		= TEXT_MAGENTA;
+		Colors::TXT_letter 				= TEXT_YELLOW;
+		Colors::TXT_highlight_letter 	= TEXT_WHITE;
+		Colors::TXT_path 				= TEXT_GREEN;
+		Colors::TXT_button_drawing 		= TEXT_WHITE;
+		Colors::TXT_button_text			= TEXT_PURPLE;
+		Colors::TXT_button_highlight_text = TEXT_WHITE;
+		Colors::TXT_blue 				= TEXT_LIGHT_BLUE;
 
 		// background color
-		BG_main_bg 				= BG_BLACK;
-		BG_cell_cursor 			= BG_CYAN;
-		BG_cell_selected 		= BG_ORANGE;
-		BG_cell_correct 		= BG_GREEN;
-		BG_cell_wrong 			= BG_RED;
-		BG_cell_hint 			= BG_PURPLE;
-		BG_button_selecting 	= BG_ORANGE;
-		BG_title 				= BG_CYAN;
+		Colors::BG_main_bg 				= BG_BLACK;
+		Colors::BG_cell_cursor 			= BG_CYAN;
+		Colors::BG_cell_selected 		= BG_ORANGE;
+		Colors::BG_cell_correct 		= BG_GREEN;
+		Colors::BG_cell_wrong 			= BG_RED;
+		Colors::BG_cell_hint 			= BG_PURPLE;
+		Colors::BG_button_selecting 	= BG_ORANGE;
+		Colors::BG_title 				= BG_CYAN;
 
 
 	}
 	else {					// light mode
 		system("color f0");	// white background
 		// text color
-		TXT_main_text 			= TEXT_BLACK;
-		TXT_cell_border 		= TEXT_MAGENTA;
-		TXT_letter 				= TEXT_DARK_RED;
-		TXT_highlight_letter 	= TEXT_WHITE;
-		TXT_path 				= TEXT_GREEN;
-		TXT_button_drawing 		= TEXT_BLACK;
-		TXT_button_text			= TEXT_PURPLE;
-		TXT_button_highlight_text = TEXT_WHITE;
-		TXT_red = TEXT_RED;
-		TXT_blue = TEXT_BLUE;
+		Colors::TXT_main_text 			= TEXT_BLACK;
+		Colors::TXT_cell_border 		= TEXT_MAGENTA;
+		Colors::TXT_letter 				= TEXT_DARK_RED;
+		Colors::TXT_highlight_letter 	= TEXT_WHITE;
+		Colors::TXT_path 				= TEXT_GREEN;
+		Colors::TXT_button_drawing 		= TEXT_BLACK;
+		Colors::TXT_button_text			= TEXT_PURPLE;
+		Colors::TXT_button_highlight_text = TEXT_WHITE;
+		Colors::TXT_blue 				= TEXT_BLUE;
 
 		// background color
-		BG_main_bg 				= BG_WHITE;
-		BG_cell_cursor 			= BG_CYAN;
-		BG_cell_selected 		= BG_ORANGE;
-		BG_cell_correct 		= BG_GREEN;
-		BG_cell_wrong 			= BG_RED;
-		BG_cell_hint 			= BG_PURPLE;
-		BG_button_selecting 	= BG_ORANGE;
-		BG_title 				= BG_CYAN;
+		Colors::BG_main_bg 				= BG_WHITE;
+		Colors::BG_cell_cursor 			= BG_CYAN;
+		Colors::BG_cell_selected 		= BG_ORANGE;
+		Colors::BG_cell_correct 		= BG_GREEN;
+		Colors::BG_cell_wrong 			= BG_RED;
+		Colors::BG_cell_hint 			= BG_PURPLE;
+		Colors::BG_button_selecting 	= BG_ORANGE;
+		Colors::BG_title 				= BG_CYAN;
 	}
 }
 
@@ -186,6 +216,7 @@ void setupConsole() {
 	fin >> is_dark_mode >> is_sound_on;
 	fin.close();
 
+	setColors();
 	setConsoleWindow();
 	disableMouseInput();
 	disableMaximizeConsole();

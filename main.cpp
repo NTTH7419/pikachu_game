@@ -3,10 +3,9 @@
 
 
 int main() {
-	Menu m;
 
 	setupConsole();
-	m.startMenu();
+	Menu::startMenu();
 
 	return 0;
 }

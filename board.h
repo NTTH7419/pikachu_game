@@ -205,7 +205,7 @@ struct Board{
     int height;
     int width;
     int distinct_letter; //number of distinct letters that can be picked 
-    bool is_array; //array implementation or linked list implementation
+    bool isArray;      //array implementation or linked list implementation
 
     char** letter_board;    // array board
     List2D list_board;      // linked list board
@@ -219,32 +219,32 @@ struct Board{
     int x_offset;
     int y_offset;
 
-    //TODO: setting the difficulty
+    //TODO: setting the difficulty and allocate memory
     Board(int difficulty){
         if (difficulty == EASY) {
 			height = 6;
 			width = 8;
 			distinct_letter = 15;
-            is_array = true;
+            isArray = true;
 		}
 		else if (difficulty == MEDIUM) {
 			height = 8;
 			width = 10;
 			distinct_letter = 20;
-            is_array = true;
+            isArray = true;
 		}
 		else if (difficulty == HARD) {
 			height = 8;
 			width = 12;
 			distinct_letter = 26;
-            is_array = false;
+            isArray = false;
 		}
 
         //setting the offset of the board (centerize)
         x_offset = 30 + (141 - (cell_width * (width + 2) + 1)) / 2;
         y_offset = 1 + (41 - (cell_height * (height + 2) + 1)) / 2;
 
-        if (is_array){   // allocate array
+        if (isArray){   // allocate array
             letter_board = new char*[height + 2];
             for (int i = 0; i < height + 2; i++)
                 letter_board[i] = new char[width + 2];
@@ -269,19 +269,19 @@ struct Board{
             }
         }
 
-
+        // load background
         background = new string[(height + 2) * cell_height + 1];
         loadBackground(difficulty);
     }
 
     ~Board(){
-        if (is_array) {
+        if (isArray) {      // deallocate array
             for (int i = 0; i < height + 2; i++)
                 delete[] letter_board[i];
 
             delete[] letter_board;
         }
-        else {
+        else {      // deallocate linked list
             for (int i = 0; i < height + 2; i++){
                 list_board[i].del();
             }
@@ -363,7 +363,4 @@ struct Board{
 
     //TODO: animating the shuffle effect
     void animateShuffle();
-
-    //TODO: shift the board leftward
-    void shift(Coordinate pos);
 };

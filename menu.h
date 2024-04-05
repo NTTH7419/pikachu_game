@@ -47,43 +47,20 @@ struct Options_list {
 };
 
 struct Menu {
-	int title_x = (CONSOLE_WIDTH - 76) / 2;
-	int title_y = 5;
-	int list_x = (CONSOLE_WIDTH - Button::width) / 2;
-	int list_y = 17;
-	string* title;
-	int title_height;
-	int title_width;
-	string player_selection;
+	static const int title_x = (CONSOLE_WIDTH - 76) / 2;
+	static const int title_y = 5;
+	static const int list_x = (CONSOLE_WIDTH - Button::width) / 2;
+	static const int list_y = 17;
+	static string* title;
+	static int title_height;
+	static int title_width;
+	static string player_selection;
 
-	const string main_menu_options[5] {"Play", "Highscores", "Infos", "Settings", "Quit Game"};
-	const string difficuty_options[4] {"Easy", "Medium", "Hard", "Back"};
-	const string quit_confirm[2] {"Yes", "No"};
-	const string setting_options[3] {"Theme", "Sound", "Back"};
+	static void loadTitle();
+	static void displayTitle();
+	static void startMenu();
 
-	const string welcome = "Welcome to Pokemon++, a matching game on console";
-	const string difficulty_instruction = "Choose difficulty:";
-	const string quit_instruction = "Quit game?";
-	const string setting_instruction = "Set your preferences, please restart game for this to take effect";
-
-	Options_list main_menu = Options_list(welcome, main_menu_options, 5, list_x, list_y);
-	Options_list difficulty_menu = Options_list(difficulty_instruction, difficuty_options, 4, list_x, list_y);
-	Options_list quit_menu = Options_list(quit_instruction, quit_confirm, 2, list_x, list_y);
-	Options_list setting_menu = Options_list(setting_instruction, setting_options, 3, list_x, list_y);
-
-	Menu() {
-		loadTitle();
-		Highscores::loadHighscores();
-	}
-
-	~Menu() {
-		delete[] title;
-	}
-	void loadTitle();
-	void displayTitle();
-	void startMenu();
-
-	void startGame(int difficulty);
-	void showInfo();
-	void showSetting();
+	static void startGame(int difficulty);
+	static void showInfo();
+	static void showSetting();
 };

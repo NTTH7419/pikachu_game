@@ -53,61 +53,55 @@ const char K_h 		= 'h';		// hint
 const char K_R		= 'R';		// shuffle
 const char K_r		= 'r';		// shuffle
 
+// background
+const string BG_BLACK 		= "\33[0m";     		// for background in dark mode
+const string BG_WHITE 		= "\33[107m";   		// for background in light mode
+const string BG_RED 		= "\33[41m";      		// for wrong pair
+const string BG_YELLOW 		= "\33[43m";			// for title
+const string BG_ORANGE 		= "\33[48;5;208m";		// for selected cell
+const string BG_GREEN 		= "\33[42m";    		// for correct pair
+const string BG_CYAN 		= "\33[46m";     		// for cursor
+const string BG_PURPLE 		= "\33[48;5;93m";   	// for hint pair
+const string BG_PINK	 	= "\33[48;5;199m";		// for shuffle animation
 
+// text
+const string TEXT_RED		= "\33[31m";
+const string TEXT_GREEN 	= "\33[32m";  			// for correct path
+const string TEXT_BLUE 		= "\33[34m";   			// for letters in light mode
+const string TEXT_LIGHT_BLUE = "\33[38;5;33m";
+const string TEXT_YELLOW 	= "\33[33m"; 			// for letters in dark mode
+const string TEXT_DARK_RED 	= "\33[38;5;88m";
+const string TEXT_ORANGE 	= "\33[38;5;208m";
+const string TEXT_PURPLE	= "\33[38;5;93m";		// for button text
+const string TEXT_MAGENTA 	= "\33[95m"; 			// for cell border
+const string TEXT_WHITE 	= "\33[97m";  			// for other characters and highlighted cell in dark mode
+const string TEXT_BLACK 	= "\33[30m";  			// for other characters in light mode
+const string TEXT_PINK	 	= "\33[38;5;199m";
 
 struct Colors {
-	// background
-	const string BG_BLACK 		= "\33[0m";     		// for background in dark mode
-	const string BG_WHITE 		= "\33[107m";   		// for background in light mode
-	const string BG_RED 		= "\33[41m";      		// for wrong pair
-	const string BG_YELLOW 		= "\33[43m";			// for title
-	const string BG_ORANGE 		= "\33[48;5;208m";		// for selected cell
-	const string BG_GREEN 		= "\33[42m";    		// for correct pair
-	const string BG_CYAN 		= "\33[46m";     		// for cursor
-	const string BG_PURPLE 		= "\33[48;5;93m";   	// for hint pair
-	const string BG_PINK	 	= "\33[48;5;199m";		// for shuffle animation
-
-	// text
-	const string TEXT_RED		= "\33[31m";
-	const string TEXT_GREEN 	= "\33[32m";  			// for correct path
-	const string TEXT_BLUE 		= "\33[34m";   			// for letters in light mode
-	const string TEXT_LIGHT_BLUE = "\33[38;5;33m";
-	const string TEXT_YELLOW 	= "\33[33m"; 			// for letters in dark mode
-	const string TEXT_DARK_RED 	= "\33[38;5;88m";
-	const string TEXT_ORANGE 	= "\33[38;5;208m";
-	const string TEXT_PURPLE	= "\33[38;5;93m";		// for button text
-	const string TEXT_MAGENTA 	= "\33[95m"; 			// for cell border
-	const string TEXT_WHITE 	= "\33[97m";  			// for other characters and highlighted cell in dark mode
-	const string TEXT_BLACK 	= "\33[30m";  			// for other characters in light mode
-	const string TEXT_PINK	 	= "\33[38;5;199m";
 
 	// text color
-	string TXT_main_text;
-	string TXT_cell_border;
-	string TXT_letter;
-	string TXT_highlight_letter;
-	string TXT_path;
-	string TXT_button_drawing;
-	string TXT_button_text;
-	string TXT_button_highlight_text;
+	static string TXT_main_text;
+	static string TXT_cell_border;
+	static string TXT_letter;
+	static string TXT_highlight_letter;
+	static string TXT_path;
+	static string TXT_button_drawing;
+	static string TXT_button_text;
+	static string TXT_button_highlight_text;
 
-	string TXT_blue;
-	string TXT_red;
+	static string TXT_blue;
 
 	// background color
-	string BG_main_bg;
-	string BG_cell_cursor;
-	string BG_cell_selected;
-	string BG_cell_correct;
-	string BG_cell_wrong;
-	string BG_cell_hint;
-	string BG_button_selecting;
-	string BG_title;
-
-	Colors();
+	static string BG_main_bg;
+	static string BG_cell_cursor;
+	static string BG_cell_selected;
+	static string BG_cell_correct;
+	static string BG_cell_wrong;
+	static string BG_cell_hint;
+	static string BG_button_selecting;
+	static string BG_title;
 };
-
-const Colors colors = Colors();
 
 
 //* box drawing
@@ -127,7 +121,7 @@ const char D_RIGHT_UP_CORNER 	= 200;		// ╚
 const char D_LEFT_UP_CORNER 	= 188;		// ╝
 const char D_RIGHT_DOWN_CORNER 	= 201;		// ╔
 
-
+//TODO: get player input
 Input getInput();
 
 //TODO: moving the cursor to a desired position

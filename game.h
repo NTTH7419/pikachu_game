@@ -87,37 +87,29 @@ struct Game {
 
 
 //define a record struct to save the information of the leaderboard
-struct Record {
+struct Result {
 	string name;
 	int score;
 	Time play_time;
 
-	string toCSV() {
+	bool operator>(Result &r) {		// better score, if equal: better play time
+		return ((score > r.score) || ((score == r.score) && (play_time < r.play_time)));
+	}
+
+	string convertToCSV() {
 		return (name + "," + to_string(score) + "," + to_string(play_time.min) + ":" + to_string(play_time.sec));
 	};
-
-	//TODO: convert comma separate values to txt
-	void fromCSV(string csv) {
-		name = csv.substr(0, csv.find(','));
-		csv.erase(0, csv.find(',') + 1);
-		score = stoi(csv.substr(0, csv.find(',')));
-		csv.erase(0, csv.find(',') + 1);
-		play_time.min = stoi(csv.substr(0, csv.find(':')));
-		csv.erase(0, csv.find(':') + 1);
-		play_time.sec = stoi(csv);
-	}
 };
 
-//define the Highscores struct to store all the records
+//define the Highscores struct to store the highest results
 struct Highscores {
-	static int highscorers;	// number of highscorer in top 5
-	static vector<Record> records; 	//list of top highscorer
+	static vector<Result> records; 	//list of top highscorer
 
-	//TODO: load the high scores from the file
+	//TODO: load the highscores from the file
 	static void loadHighscores();
 
 	//TODO: update the highscores according to the record
-	static void updateHighscores(Record record);
+	static void updateHighscores(Result record);
 
 	//TODO: dispaly the highscores on the board
 	static void displayHighscores();

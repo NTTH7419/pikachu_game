@@ -34,22 +34,20 @@ void Board::initBoard() {
             selected_chars.erase(selected_chars.begin() + index);
         }
     }
-
 }
 
-//load the background depends on the difficulty chosen
 void Board::loadBackground(int difficulty) {
 	ifstream fin;
 	if (difficulty == EASY) {
-		fin.open("bg_easy.txt");
+		fin.open("background\\easy.txt");
 		bg_info = "Stonehenge - Art by lgbeard";
 	}
 	else if (difficulty == MEDIUM) {
-		fin.open("bg_medium.txt");
+		fin.open("background\\medium.txt");
         bg_info = "Tower Bridge - Art by unknown";
 	}
 	else if (difficulty == HARD) {
-		fin.open("bg_hard.txt");
+		fin.open("background\\hard.txt");
 		bg_info = "Taj Mahal - Art by unknown";
 	}
 
@@ -163,7 +161,7 @@ bool Board::bfs(Coordinate start, Coordinate end, vector<Coordinate> &path){
 
 
 
-void Board::highlightCell(Coordinate pos, string bg_color, string text_color = colors.TXT_highlight_letter) {
+void Board::highlightCell(Coordinate pos, string bg_color, string text_color = Colors::TXT_highlight_letter) {
 	if (isValid(pos)) {
 		changeTextColor(bg_color, text_color);
 
@@ -180,42 +178,42 @@ void Board::highlightCell(Coordinate pos, string bg_color, string text_color = c
 			cout << getLetter(pos);
 	}
 	else {		// empty cell, draw background
-		changeTextColor(bg_color, colors.TXT_main_text);
+		changeTextColor(bg_color, Colors::TXT_main_text);
 		for (int i = 1; i < cell_height; i++) {
 			goTo(x_offset + cell_width * pos.x + 1,
 				 y_offset + cell_height * pos.y + i);
 			cout << background[cell_height * pos.y + i].substr(cell_width * pos.x + 1, cell_width - 1);
 		}
 	}
-	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	changeTextColor(Colors::BG_main_bg, Colors::TXT_main_text);
 }
 
 void Board::unhighlightCell(Coordinate pos) {
-	highlightCell(pos, colors.BG_main_bg, colors.TXT_letter);
+	highlightCell(pos, Colors::BG_main_bg, Colors::TXT_letter);
 }
 
 void Board::highlightCursor(Coordinate pos) {
-	highlightCell(pos, colors.BG_cell_cursor);
+	highlightCell(pos, Colors::BG_cell_cursor);
 }
 
 void Board::highlightSelected(Coordinate pos) {
-	highlightCell(pos, colors.BG_cell_selected);
+	highlightCell(pos, Colors::BG_cell_selected);
 }
 void Board::highlightCorrectPair(Coordinate pos1, Coordinate pos2) {
-	highlightCell(pos1, colors.BG_cell_correct);
-	highlightCell(pos2, colors.BG_cell_correct);
+	highlightCell(pos1, Colors::BG_cell_correct);
+	highlightCell(pos2, Colors::BG_cell_correct);
 }
 void Board::highlightWrongPair(Coordinate pos1, Coordinate pos2) {
-	highlightCell(pos1, colors.BG_cell_wrong);
-	highlightCell(pos2, colors.BG_cell_wrong);
+	highlightCell(pos1, Colors::BG_cell_wrong);
+	highlightCell(pos2, Colors::BG_cell_wrong);
 }
 void Board::highlightHintPair(Coordinate pos1, Coordinate pos2) {
-	highlightCell(pos1, colors.BG_cell_hint);
-	highlightCell(pos2, colors.BG_cell_hint);
+	highlightCell(pos1, Colors::BG_cell_hint);
+	highlightCell(pos2, Colors::BG_cell_hint);
 }
 
 char Board::getLetter(Coordinate pos) {
-	if (is_array)
+	if (isArray)
 		return letter_board[pos.y][pos.x];
 	
 	return list_board[pos.y][pos.x];
@@ -226,7 +224,7 @@ bool Board::isValid(Coordinate pos) {
 }
 
 void Board::displayLetter() {
-	changeTextColor(colors.BG_main_bg, colors.TXT_letter);
+	changeTextColor(Colors::BG_main_bg, Colors::TXT_letter);
 	for (int i = 1; i <= width; i++) {
 		for (int j = 1; j <= height; j++) {
 			goTo(x_offset + i * cell_width + cell_width / 2,
@@ -235,14 +233,14 @@ void Board::displayLetter() {
 			Sleep(500 / (height * width));
 		}
 	}
-	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	changeTextColor(Colors::BG_main_bg, Colors::TXT_main_text);
 }
 
 void Board::displayBoard() {
 	playSFX(SFX_START_GAME);
 
 	//* print the game board
-	changeTextColor(colors.BG_main_bg, colors.TXT_cell_border);
+	changeTextColor(Colors::BG_main_bg, Colors::TXT_cell_border);
 	
 	// row separator
 	string row_sep;
@@ -282,7 +280,7 @@ void Board::displayBoard() {
 
 void Board::removeCell(Coordinate pos) {
 	Coordinate cur = pos;
-	if (!is_array) {	// go to the last cell in the row
+	if (!isArray) {	// go to the last cell in the row
 		for (int i = cur.x + 1; i <= width; i++) {
 			if (!isValid({i, pos.y})) break;
 			pos.x = i;
@@ -290,7 +288,7 @@ void Board::removeCell(Coordinate pos) {
 	}
 
 	// remove the letter and draw background
-	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	changeTextColor(Colors::BG_main_bg, Colors::TXT_main_text);
 	for (int i = 1; i < cell_height; i++) {
 		goTo(x_offset + pos.x * cell_width + 1,
 			 y_offset + pos.y * cell_height + i);
@@ -333,14 +331,14 @@ void Board::removeCell(Coordinate pos) {
 		cout << background[cell_height * pos.y + cell_height].substr(cell_width * pos.x + 1, cell_width - 1);
 	}
 
-	if (is_array){
+	if (isArray){
 		letter_board[pos.y][cur.x] = '#';
 	}
 	else{
 		list_board[pos.y].remove(cur.x);
 
 		// print the board again
-		changeTextColor(colors.BG_main_bg, colors.TXT_letter);
+		changeTextColor(Colors::BG_main_bg, Colors::TXT_letter);
 		for (int i = cur.x; i <= width; i++) {
 			if (!isValid({i, pos.y})) break;
 			goTo(x_offset + i * cell_width + cell_width / 2,
@@ -403,7 +401,7 @@ queue<Coordinate> Board::drawPath(vector<Coordinate> path) {
 		}
 
 		// draw path
-		changeTextColor(colors.BG_main_bg, colors.TXT_path);
+		changeTextColor(Colors::BG_main_bg, Colors::TXT_path);
 		if (left) {
 			x = x_offset + cell_width * curr.x + 1;
 			y = y_offset + cell_height * curr.y + cell_height / 2;
@@ -507,7 +505,7 @@ queue<Coordinate> Board::drawPath(vector<Coordinate> path) {
 void Board::deletePath(queue<Coordinate> drawn_pixels) {
 	int x, y;
 	Coordinate curr;
-	changeTextColor(colors.BG_main_bg, colors.TXT_main_text);
+	changeTextColor(Colors::BG_main_bg, Colors::TXT_main_text);
 	while (!drawn_pixels.empty()) {
 		curr = drawn_pixels.front(); drawn_pixels.pop();
 		x = curr.x;
@@ -520,20 +518,12 @@ void Board::deletePath(queue<Coordinate> drawn_pixels) {
 void Board::animateShuffle() {
 	for (int i = 1; i <= width; i++) {
 		for (int j = 1; j <= height; j++) {
-			highlightCell({i, j}, colors.BG_PINK, colors.TXT_highlight_letter);
+			highlightCell({i, j}, BG_PINK, Colors::TXT_highlight_letter);
 		}
 		Sleep(30);
 		for (int j = 1; j <= height; j++) {
 			unhighlightCell({i, j});
 		}
-	}
-}
-
-void Board::shift(Coordinate pos){
-	for (int j = pos.x; j <= width; j++){
-		letter_board[pos.y][j] = getLetter({j + 1, pos.y});
-		
-		unhighlightCell({j, pos.y});
 	}
 }
 
