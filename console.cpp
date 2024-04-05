@@ -89,23 +89,15 @@ char getCharAtPosition(SHORT x, SHORT y) {
 
 void playSFX(int sound) {
 	if(!is_sound_on) {		// if sound off
-		if (sound == SFX_CORRECT || sound == SFX_WRONG) {
-			Sleep(300);
-		}
 		return;
 	}
-	switch (sound)	{
-		case SFX_MOVE_CURSOR:
-			PlaySoundA("sfx\\move_cursor.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
-		
+	switch (sound)	{	
 		case SFX_CORRECT:
-			PlaySoundA("sfx\\correct.wav", NULL, SND_FILENAME | SND_SYNC);
+			PlaySoundA("sfx\\correct.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		
 		case SFX_WRONG:
-			PlaySoundA("sfx\\wrong.wav", NULL, SND_FILENAME | SND_SYNC);
-			Sleep(100);
+			PlaySoundA("sfx\\wrong.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 
 		case SFX_SELECT:

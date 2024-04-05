@@ -319,6 +319,12 @@ struct Board{
     //TODO: path finding function using bfs
     bool bfs(Coordinate start, Coordinate end, vector<Coordinate> &path);
 
+	//TODO: find a valid pair
+	bool findValidPair(Coordinate &pos1, Coordinate &pos2);
+
+    //TODO: shuffle the board if no more valid pairs exist
+	void shuffleBoard();
+
     //TODO: highlight the cell at position pos with color specified below
     void highlightCell(Coordinate pos, string bg_color, string text_color);
 
@@ -359,7 +365,7 @@ struct Board{
     queue<Coordinate> drawPath(vector<Coordinate> path);
 
     //TODO: delete the path after displaying
-    void deletePath(queue<Coordinate> drawn_pixels);
+    void deletePath(queue<Coordinate> drawn_pixels, Coordinate pos1, Coordinate pos2);
 
     //TODO: animating the shuffle effect
     void animateShuffle();

@@ -1,7 +1,6 @@
 #include "game.h"
 
 void Game::moveCursor(Coordinate &cur, Input inp) {
-	playSFX(SFX_MOVE_CURSOR);
 	if (inp == Input::UP) {
 		cur.y -= 1;
 		if (cur.y <= 0) cur.y = board_height;	// if cursor moves outside of board, it moves to the other side
@@ -38,8 +37,9 @@ bool Game::matchCell(Coordinate cur1, Coordinate cur2) {
 		drawn_pixels = game_board->drawPath(path);
 		game_board->highlightCorrectPair(cur1, cur2);
 		playSFX(SFX_CORRECT);
+		Sleep(500);
 
-		game_board->deletePath(drawn_pixels);
+		game_board->deletePath(drawn_pixels, cur1, cur2);
 		
 		//delete the cell and shifting (right most element gets deleted first)
 		game_board->removeCell(cur1.x < cur2.x ? cur2 : cur1);
@@ -54,40 +54,17 @@ bool Game::matchCell(Coordinate cur1, Coordinate cur2) {
 	else {
 		game_board->highlightWrongPair(cur1, cur2);
 		playSFX(SFX_WRONG);
+		Sleep(500);
 		game_board->unhighlightCell(cur1);
 		game_board->highlightCursor(cur2);
 		return false;
 	}
 }
 
-bool Game::findValidPair(Coordinate &pos1, Coordinate &pos2) {
-	for (int i = 1; i <= board_height; i++){
-		for (int j = 1; j <= board_width; j++){
-			if (game_board->isValid({j, i})){
-				char piece = game_board->getLetter({j, i});
-				for (int k = i; k <= board_height; k++){
-					for (int l = 0; l <= board_width; l++){
-						vector<Coordinate> temp;
-						if (game_board->getLetter({l, k}) == piece && !(i == k && j == l) && game_board->bfs({j, i}, {l, k}, temp)){
-							pos1 = {j, i};
-							pos2 = {l, k};
-							return 1;
-						}
-					}
-				} 
-			}
-		}
-	}	
-
-	pos1 = {-1, -1};
-	pos2 = {-1, -1};
-	return 0;
-}
-
 void Game::showHint(){
 	Coordinate pos1;
 	Coordinate pos2;
-	if (findValidPair(pos1, pos2)){
+	if (game_board->findValidPair(pos1, pos2)){
 		game_board->highlightHintPair(pos1, pos2);
 	}
 }
@@ -215,7 +192,7 @@ void Game::inputName(int x, int y) {
 	setCursorAppearance(1);
 	getline(cin, name);
 	setCursorAppearance(0);
-	while (name.find(',') != name.npos || name.size() > 30) {
+	while (name.find(',') != name.npos || name.size() > 30 || name.size() == 0) {
 		goTo(x + 1, y + 1);
 		cout << string(50, ' ');
 		goTo(x + 31, y + 1);
@@ -242,15 +219,15 @@ void Game::initGame() {
 
 	displayGameInfo();
 	drawBox(30, 1, 141, 41);	// game board's box
-	Sleep(300);
+	Sleep(500);
 	game_board->displayBoard();
-	// game_board->printList();
 }
 
 bool Game::gameLoop() {
 	clock_t start_time;
 	int remaining_cell = board_height * board_width;
-	Coordinate cur1, cur2;	// cursor 1 and cursor 2, 
+	Coordinate cur1, cur2;	// cursor 1 and cursor 2
+	Coordinate pos1, pos2;	// position of hint
 	Input inp;
 	bool cur1_selected = false;
 
@@ -259,20 +236,14 @@ bool Game::gameLoop() {
 	
 	start_time = clock();
 	while (remaining_cell > 0) {
-		Coordinate pos1, pos2;
+		
 
 		// shuffle board if there are no valid pairs
-		while (!findValidPair(pos1, pos2)){
+		if (!cur1_selected && !game_board->findValidPair(pos1, pos2)){
 			game_board->unhighlightCell(cur1);
-			game_board->unhighlightCell(cur2);
-			cur1 = cur2 = {1, 1};
-			cur1_selected = false;
-			updateScore(-200);
-			shuffleBoard();
+			game_board->shuffleBoard();
 			game_board->animateShuffle();
-			hint_used = false;
 			game_board->highlightCursor(cur1);
-		
 		}
 
 		inp = getInput();
@@ -282,8 +253,7 @@ bool Game::gameLoop() {
 
 		// escape
 		if (inp == Input::ESCAPE) {
-			// return 0;	//debug mode
-			break;
+			return 0;
 		}
 		
 		// move cursor
@@ -409,27 +379,6 @@ void Game::gameFinished(bool isFinished) {
 	system("cls");
 }
 
-void Game::shuffleBoard(){
-	srand(time(NULL));
-
-
-	for (int n = 0; n < board_height * board_width; n++){
-		int i = rand() % board_height + 1;
-		int j = rand() % board_width + 1;
-
-		int k = rand() % board_height + 1;
-		int l = rand() % board_width + 1;
-
-		if (game_board->isValid({j, i}) && game_board->isValid({l, k})){
-
-			if(game_board->isArray)
-				swap(game_board->letter_board[i][j], game_board->letter_board[k][l]);
-			else
-				swap(game_board->list_board[i][j], game_board->list_board[k][l]);
-		}
-	}
-}
-
 vector<Result> Highscores::records;
 
 void Highscores::loadHighscores() {
@@ -482,7 +431,7 @@ void Highscores::displayHighscores() {
 	changeTextColor(Colors::BG_main_bg, TEXT_GREEN);
 	cout << "Highscores";
 	changeTextColor(Colors::BG_main_bg, Colors::TXT_main_text);
-	drawBox((CONSOLE_WIDTH - 70) / 2, 20, 70, 15);
+	drawBox((CONSOLE_WIDTH - 70) / 2, 20, 70, 13);
 	goTo(52, 22);
 	cout << string(68, HORIZONTAL_EDGE);
 	changeTextColor(Colors::BG_main_bg, Colors::TXT_blue);
@@ -511,12 +460,12 @@ void Highscores::displayHighscores() {
 		records[i].play_time.displayTime();
 	}
 
-	goTo(70, 37);
+	goTo(70, 35);
 	changeTextColor(Colors::BG_main_bg, TEXT_PINK);
 	cout << "Press ESC to go back to the main menu";
 	while(getInput() != Input::ESCAPE);
 
-	for (int i = 17; i <= 37; i++) {
+	for (int i = 17; i <= 35; i++) {
 		goTo(50, i);
 		cout << string(100, ' ');
 	}

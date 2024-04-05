@@ -10,18 +10,19 @@
 
 using namespace std;
 
+// window, console size
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
 #define CONSOLE_WIDTH 172
 #define CONSOLE_HEIGHT 42
 
+// sfx
 #define SFX_CORRECT 1
 #define SFX_WRONG 2
 #define SFX_SELECT 3
-#define SFX_MOVE_CURSOR 4
-#define SFX_WIN 5
-#define SFX_START_GAME 6
+#define SFX_WIN 4
+#define SFX_START_GAME 5
 
 enum Input{
 	INVALID 	= -2,

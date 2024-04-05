@@ -7,7 +7,6 @@ void Board::initBoard() {
 	//A vector to store the selected characters
 	vector<char> selected_chars;
 
-
 	//Interate to the half of the board and assign random characters from k distinct characters
     for (int i = 1; i <= ceil(height / 2.0); i++){
         for (int j = 1; j <= width; j++){
@@ -19,7 +18,6 @@ void Board::initBoard() {
 			}
         }
     }
-
 
 	//Iterate through the other half of the board and randomly assign characters from selected chars
     for (int i = ceil(height / 2.0); i <= height; i++){
@@ -159,7 +157,52 @@ bool Board::bfs(Coordinate start, Coordinate end, vector<Coordinate> &path){
     return 0;
 }
 
+bool Board::findValidPair(Coordinate &pos1, Coordinate &pos2) {
+	for (int i = 1; i <= height; i++){
+		for (int j = 1; j <= width; j++){
+			if (isValid({j, i})){
+				char piece = getLetter({j, i});
+				for (int k = i; k <= height; k++){
+					for (int l = 0; l <= width; l++){
+						vector<Coordinate> temp;
+						if (getLetter({l, k}) == piece && !(i == k && j == l) && bfs({j, i}, {l, k}, temp)){
+							pos1 = {j, i};
+							pos2 = {l, k};
+							return 1;
+						}
+					}
+				} 
+			}
+		}
+	}	
 
+	pos1 = {-1, -1};
+	pos2 = {-1, -1};
+	return 0;
+}
+
+void Board::shuffleBoard(){
+	Coordinate pos1, pos2;
+	srand(time(0) + rand());
+
+	while(!findValidPair(pos1, pos2)) {
+		for (int n = 0; n < height * width; n++){
+			int i = rand() % height + 1;
+			int j = rand() % width + 1;
+
+			int k = rand() % height + 1;
+			int l = rand() % width + 1;
+
+			if (isValid({j, i}) && isValid({l, k})){
+
+				if(isArray)
+					swap(letter_board[i][j], letter_board[k][l]);
+				else
+					swap(list_board[i][j], list_board[k][l]);
+			}
+		}
+	}
+}
 
 void Board::highlightCell(Coordinate pos, string bg_color, string text_color = Colors::TXT_highlight_letter) {
 	if (isValid(pos)) {
@@ -502,7 +545,7 @@ queue<Coordinate> Board::drawPath(vector<Coordinate> path) {
 	return drawn_pixels;
 }
 
-void Board::deletePath(queue<Coordinate> drawn_pixels) {
+void Board::deletePath(queue<Coordinate> drawn_pixels, Coordinate pos1, Coordinate pos2) {
 	int x, y;
 	Coordinate curr;
 	changeTextColor(Colors::BG_main_bg, Colors::TXT_main_text);
@@ -512,6 +555,35 @@ void Board::deletePath(queue<Coordinate> drawn_pixels) {
 		y = curr.y;
 		goTo(x, y);
 		cout << background[y - y_offset][x - x_offset];
+	}
+	if (!isArray) {
+		changeTextColor(Colors::BG_main_bg, Colors::TXT_cell_border);
+		goTo(x_offset + cell_width * pos1.x + cell_width / 2,
+			 y_offset + cell_height * pos1.y);
+		cout << HORIZONTAL_EDGE;
+		goTo(x_offset + cell_width * pos1.x + cell_width / 2,
+			 y_offset + cell_height * pos1.y + cell_height);
+		cout << HORIZONTAL_EDGE;
+		goTo(x_offset + cell_width * pos1.x,
+			 y_offset + cell_height * pos1.y + cell_height / 2);
+		cout << VERTICAL_EDGE;
+		goTo(x_offset + cell_width * pos1.x + cell_width,
+			 y_offset + cell_height * pos1.y + cell_height / 2);
+		cout << VERTICAL_EDGE;
+
+		goTo(x_offset + cell_width * pos2.x + cell_width / 2,
+			 y_offset + cell_height * pos2.y);
+		cout << HORIZONTAL_EDGE;
+		goTo(x_offset + cell_width * pos2.x + cell_width / 2,
+			 y_offset + cell_height * pos2.y + cell_height);
+		cout << HORIZONTAL_EDGE;
+		goTo(x_offset + cell_width * pos2.x,
+			 y_offset + cell_height * pos2.y + cell_height / 2);
+		cout << VERTICAL_EDGE;
+		goTo(x_offset + cell_width * pos2.x + cell_width,
+			 y_offset + cell_height * pos2.y + cell_height / 2);
+		cout << VERTICAL_EDGE;
+		changeTextColor(Colors::BG_main_bg, Colors::TXT_main_text);
 	}
 }
 

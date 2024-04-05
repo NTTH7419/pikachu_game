@@ -66,9 +66,6 @@ struct Game {
 	//TODO: match two cells at position cur1 and cur2
 	bool matchCell(Coordinate cur1, Coordinate cur2);
 
-	//TODO: find a valid pair
-	bool findValidPair(Coordinate &pos1, Coordinate &pos2);
-
 	//TODO: highlight the two cells available for matching
 	void showHint();
 
@@ -77,9 +74,6 @@ struct Game {
 
 	//TODO: update the score displayed on screen
 	void updateScore(int bonus_score);
-
-	//TODO: shuffle the board if no more valid pairs exist
-	void shuffleBoard();
 
 	//TODO: taking the name of the player
 	void inputName(int x, int y);

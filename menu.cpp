@@ -120,7 +120,6 @@ string Options_list::selectOption() {
 		if (inp == Input::INVALID) continue;
 
 		if (inp == Input::UP) {
-			playSFX(SFX_MOVE_CURSOR);
 			button_arr[cur].unhighlightButton();
 			cur -= 1;
 			cur = (cur + number_of_buttons) % number_of_buttons;
@@ -128,7 +127,6 @@ string Options_list::selectOption() {
 		}
 
 		else if (inp == Input::DOWN) {
-			playSFX(SFX_MOVE_CURSOR);
 			button_arr[cur].unhighlightButton();
 			cur += 1;
 			cur = (cur + number_of_buttons) % number_of_buttons;
